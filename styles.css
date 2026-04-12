@@ -1,0 +1,618 @@
+/* Body */
+body {
+  background-color: #f4f6fb;
+  font-family: Georgia, serif;
+  color: #1a1a2e;
+  margin: 0;
+  padding: 0;
+}
+
+/* Navigation */
+#navBar {
+  background-color: #000000;
+  padding: 0 30px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#navLogo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+#navLogo span {
+  color: #ffbb00;
+}
+
+#navLinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 28px;
+}
+
+#navLinks li a {
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-size: 13px;
+  font-family: Calibri, sans-serif;
+}
+
+#navLinks li a:hover {
+  color: #ffffff;
+}
+
+#navLinks li a.active {
+  color: #ffffff;
+  border-bottom: 2px solid #7eb3f7;
+  padding-bottom: 2px;
+}
+
+/* hero */
+#hero {
+  background-color: #ffbb00;
+  padding: 52px 40px 44px 40px;
+}
+
+#hero h1 {
+  font-size: 32px;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  line-height: 1.25;
+}
+
+#hero h1 span {
+  color: #000000;
+}
+
+#hero p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 480px;
+  line-height: 1.7;
+  margin: 0 0 22px 0;
+  font-family: Calibri, sans-serif;
+}
+
+#heroButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.btnPrimary {
+  background-color: #2d5be3;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  font-size: 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: Calibri, sans-serif;
+}
+
+.btnPrimary:hover {
+  background-color: #1e46c0;
+}
+
+.btnSecondary {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 22px;
+  font-size: 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: Calibri, sans-serif;
+}
+
+.btnSecondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* hero */
+#heroStats {
+  display: flex;
+  gap: 36px;
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.statNum {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+  font-family: Calibri, sans-serif;
+}
+
+/* searchBar */
+#filterBar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e4ef;
+  padding: 14px 40px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+#searchInput {
+  flex: 1;
+  padding: 8px 14px;
+  font-size: 13px;
+  border: 1px solid #cdd3e0;
+  border-radius: 7px;
+  font-family: Calibri, sans-serif;
+  background-color: #f7f9fc;
+  color: #1a1a2e;
+}
+
+#categorySelect {
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid #cdd3e0;
+  border-radius: 7px;
+  font-family: Calibri, sans-serif;
+  background-color: #f7f9fc;
+  color: #1a1a2e;
+}
+
+#filterPills {
+  display: flex;
+  gap: 8px;
+}
+
+.filterPill {
+  padding: 5px 14px;
+  border-radius: 14px;
+  border: 1px solid #cdd3e0;
+  font-size: 12px;
+  background-color: transparent;
+  color: #555e7a;
+  cursor: pointer;
+  font-family: Calibri, sans-serif;
+}
+
+.filterPill.active {
+  background-color: #ffbb00;
+  color: #ffffff;
+  border-color: #ffbb00;
+}
+
+.filterPill:hover {
+  background-color: #e8edff;
+  border-color: #2d5be3;
+  color: #ffbb00;
+}
+
+/* main section */
+#main {
+  padding: 28px 40px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+
+.sectionHeader h2 {
+  font-size: 17px;
+  font-weight: bold;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.sectionHeader a {
+  font-size: 12px;
+  color: #2d5be3;
+  text-decoration: none;
+}
+
+/* Events grid */
+#eventGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.eventCard {
+  background-color: #ffffff;
+  border: 1px solid #e0e4ef;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.eventCardBanner {
+  height: 68px;
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 12px;
+  position: relative;
+}
+
+.eventDateChip {
+  background-color: rgba(19, 32, 61, 0.8);
+  color: #ffffff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-family: Calibri, sans-serif;
+}
+
+.eventCardBody {
+  padding: 12px 14px;
+}
+
+.eventOrg {
+  font-size: 10px;
+  color: #888ea8;
+  margin-bottom: 3px;
+  font-family: Calibri, sans-serif;
+}
+
+.eventName {
+  font-size: 14px;
+  font-weight: bold;
+  color: #1a1a2e;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.eventMeta {
+  font-size: 11px;
+  color: #666b82;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  font-family: Calibri, sans-serif;
+}
+
+.eventFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.categoryBadge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-family: Calibri, sans-serif;
+}
+
+.badgeBlue {
+  background-color: #ddeaff;
+  color: #0c447c;
+}
+
+.badgeGreen {
+  background-color: #d4edda;
+  color: #27500a;
+}
+
+.badgeAmber {
+  background-color: #fff3cd;
+  color: #633806;
+}
+
+.badgeRed {
+  background-color: #fde8e8;
+  color: #791f1f;
+}
+
+.rsvpBtn {
+  background-color: #2d5be3;
+  color: #ffffff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: Calibri, sans-serif;
+}
+
+.rsvpBtn:hover {
+  background-color: #1e46c0;
+}
+
+.rsvpBtn.going {
+  background-color: #27500a;
+}
+
+/* detailSection */
+#detailSection {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+#eventDetailCard {
+  background-color: #ffffff;
+  border: 1px solid #e0e4ef;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.detailHero {
+  background-color: #13203d;
+  padding: 20px 22px;
+}
+
+.detailEyebrow {
+  font-size: 10px;
+  background-color: rgba(126, 179, 247, 0.25);
+  color: #7eb3f7;
+  padding: 2px 9px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 8px;
+  font-family: Calibri, sans-serif;
+}
+
+.detailTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.detailOrg {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: Calibri, sans-serif;
+}
+
+.detailBody {
+  padding: 16px 20px;
+}
+
+.detailInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.detailInfoLabel {
+  font-size: 10px;
+  color: #888ea8;
+  margin-bottom: 2px;
+  font-family: Calibri, sans-serif;
+}
+
+.detailInfoVal {
+  font-size: 13px;
+  color: #1a1a2e;
+}
+
+.detailDivider {
+  height: 1px;
+  background-color: #e0e4ef;
+  margin: 12px 0;
+}
+
+.detailAboutTitle {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.detailAboutText {
+  font-size: 12px;
+  color: #555e7a;
+  line-height: 1.7;
+  font-family: Calibri, sans-serif;
+}
+
+.bigRsvpBtn {
+  background-color: #2d5be3;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  padding: 11px 0;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 12px 0 6px 0;
+  font-family: Calibri, sans-serif;
+}
+
+.bigRsvpBtn:hover {
+  background-color: #1e46c0;
+}
+
+/* sideBar */
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sideCard {
+  background-color: #ffffff;
+  border: 1px solid #e0e4ef;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.sideCardTitle {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.attendeeRow {
+  display: flex;
+  gap: 0;
+  margin-bottom: 7px;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  margin-left: -5px;
+  font-family: Calibri, sans-serif;
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.attendeeCount {
+  font-size: 11px;
+  color: #666b82;
+  font-family: Calibri, sans-serif;
+}
+
+.relatedEvent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #e0e4ef;
+}
+
+.relatedEvent:last-child {
+  border-bottom: none;
+}
+
+.relatedDot {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: #ffffff;
+  flex-shrink: 0;
+  font-family: Calibri, sans-serif;
+}
+
+.relatedName {
+  font-size: 12px;
+  font-weight: bold;
+  color: #1a1a2e;
+}
+
+.relatedMeta {
+  font-size: 10px;
+  color: #888ea8;
+  font-family: Calibri, sans-serif;
+}
+
+/* Notification Section */
+#rsvpNotice {
+  background-color: #ddeaff;
+  border: 1px solid #85b7eb;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #0c447c;
+  margin-bottom: 16px;
+  font-family: Calibri, sans-serif;
+  display: none;
+}
+
+/* Footer Section */
+#footer {
+  background-color: #0f1a30;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#footerLogo {
+  font-size: 14px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+#footerLinks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 18px;
+}
+
+#footerLinks li a {
+  color: rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  font-size: 12px;
+  font-family: Calibri, sans-serif;
+}
+
+#footerCopy {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.2);
+  font-family: Calibri, sans-serif;
+}
+
+/* Sidebar Rows Notifications */
+.notifRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #e0e4ef;
+  font-size: 12px;
+  color: #555e7a;
+  font-family: Calibri, sans-serif;
+}
+
+.notifLast {
+  border-bottom: none;
+}
+
+.notifOn {
+  color: #27500a;
+  font-weight: bold;
+}
+
+.notifOff {
+  color: #888ea8;
+}
+
+/* Calendar Link */
+#calendarLinks {
+  text-align: center;
+  font-size: 11px;
+  color: #2d5be3;
+  font-family: Calibri, sans-serif;
+}
+
+/* Navigation Semester Label */
+#navSemester {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: Calibri, sans-serif;
+}
+
+/* Spots Left */
+#spotsLeft {
+  color: #27500a;
+}
