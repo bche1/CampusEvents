@@ -2,7 +2,6 @@ const router = require('express').Router();
 const Event = require('../models/Event');
 
 
-
 // GET single event
 router.get('/:id', async (req, res) => {
   try {
@@ -11,7 +10,7 @@ router.get('/:id', async (req, res) => {
     res.json(activity);
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
+  } 
 });
 
 // Get all events with filtering (?category=) and search (?q=)
