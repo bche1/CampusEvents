@@ -9,5 +9,5 @@ const EventModel = new mongoose.Schema({
   capacity: Number,
   about:    String,
 }, { timestamps: true });
-a
+
 module.exports = mongoose.model('Event', EventModel);

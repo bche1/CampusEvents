@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
 
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -15,30 +14,11 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/rsvp',   require('./routes/rsvp'));
 app.use('/api/orgs',   require('./routes/orgs'));
 app.use('/api/users', require('./routes/users'));
-
-//Making users
-  const users = [{
-    'name': username,
-    'password': password
-  }]
-
-app.get('/users', (req, res) => {
-  res.json(users)
-})
-//Authenicate User
-app.get('/login', (req, res) => {
-    
-  const username = req.body.username
-  const password = req.body.password
-
-
-    
-  const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-  res.json ({'accessToken': accessToken})
-  })
+app.use('/api/auth', require('./routes/auth'));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
+    console.log("Mongo connected")
     app.listen(process.env.PORT || 5000, () =>
       console.log(`Server running on port ${process.env.PORT || 5000}`)
     );

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Event = require('../models/Event');
 
-
+console.log("EVENT ROUTE LOADED");
 // GET single event
 router.get('/:id', async (req, res) => {
   try {

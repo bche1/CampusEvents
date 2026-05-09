@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Rsvp   = require('../models/Rsvp');
 
+console.log("RSVP ROUTE LOADED");
 // GET all RSVPs for an event
 router.get('/:eventId', async (req, res) => {
   try {
