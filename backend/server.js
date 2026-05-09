@@ -14,17 +14,24 @@ app.use((req, res, next) => { console.log(req.method, req.path); next(); }); // 
 app.use('/api/events', require('./routes/events'));
 app.use('/api/rsvp',   require('./routes/rsvp'));
 app.use('/api/orgs',   require('./routes/orgs'));
+app.use('/api/users', require('./routes/users'));
 
-  //Authenicate User
+//Making users
+  const users = [{
+    'name': username,
+    'password': password
+  }]
+
+app.get('/users', (req, res) => {
+  res.json(users)
+})
+//Authenicate User
 app.get('/login', (req, res) => {
     
   const username = req.body.username
   const password = req.body.password
 
-  const user = {
-    'name': username,
-    'password': password
-  }
+
     
   const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
   res.json ({'accessToken': accessToken})
@@ -37,5 +44,3 @@ mongoose.connect(process.env.MONGO_URI)
     );
   })
   .catch(err => console.error(err));
-
-  

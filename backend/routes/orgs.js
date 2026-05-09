@@ -1,8 +1,6 @@
 const router = require('express').Router();
 const Org    = require('../models/Org');
 
-
-
 // GET single org
 router.get('/:id', async (req, res) => {
   try {
