@@ -9,12 +9,12 @@ router.post("/register", async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        /*const existingUser = await User.findOne({email})
+        const existingUser = await User.findOne({email})
         if (existingUser) {
             return res.status(400).json({
                 message: "User aleady exists"
             });
-        }*/
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
@@ -34,4 +34,37 @@ router.post("/register", async (req, res) => {
     }
 })
 
+//login for account
+router.post('/login', async (req, res) => {
+
+    try {
+        const { email, password } = req.body;
+        console.log("BODY:", req.body);
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({message: 'User not found'})
+        }
+
+        console.log("INPUT PASSWORD:", password);
+        console.log("DB PASSWORD:", user.password);
+
+        const isMatched = await bcrypt.compare(password, user.password)
+        if (!isMatched) {
+            return res.status(400).json({message: 'Your username or password is incorrect'})
+        }
+
+        res.json ({
+            message: "login successful",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    }catch (err) {
+    res.status(500).json({message: err.message})
+}
+    
+})
 module.exports = router;
