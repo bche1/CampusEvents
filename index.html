@@ -3,7 +3,7 @@
 <head>
   <title>Campus Events App</title>
   <link rel="stylesheet" type="text/css" href="styles.css" />
-  <script type="text/javascript" src="script.js"></script>
+  
 </head>
 <body>
 
@@ -16,11 +16,35 @@
       <li><a href="#">Organizations</a></li>
       <li><a href="#">Calendar</a></li>
     </ul>
-    <div id="navSemester">Spring 2026</div>
+    <div id="navRight">
+      <div id="navSemester">Spring 2026</div>
+
+      <label class="themeSwitch">
+        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+        <span class="themeSlider"></span>
+      </label>
+    </div>
   </div>
 
   <!-- hero -->
   <div id="hero">
+
+    <div id="heroSlideshow">
+      <div class="heroSlide active" style="background-image: url('images/campus1.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus2.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus3.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus4.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus5.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus6.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus7.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus8.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus9.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus10.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus11.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus12.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus13.jpg');"></div>
+    </div>
+
     <h1>Find events that <span>matter to you</span> on campus</h1>
     <p>Browse, RSVP, and stay updated on upcoming events from clubs, departments, and organizations across campus.</p>
     <div id="heroButtons">
@@ -54,7 +78,6 @@
       <option value="workshop">Workshop</option>
     </select>
     <div id="filterPills">
-      <button class="filterPill active" onclick="setPill(this, 'all')">All</button>
       <button class="filterPill" onclick="setPill(this, 'today')">Today</button>
       <button class="filterPill" onclick="setPill(this, 'free')">Free</button>
       <button class="filterPill" onclick="setPill(this, 'virtual')">Virtual</button>
@@ -75,7 +98,7 @@
 
     <div id="eventGrid">
 
-      <div class="eventCard" data-category="academic" data-name="CS Club Fall Hackathon">
+      <div class="eventCard" data-category="academic" data-name="CS Club Fall Hackathon" data-date="today" data-cost="free" data-format="in-person" data-keywords="computer science club hackathon coding programming york room">
         <div class="eventCardBanner" style="background-color: #ddeaff;">
           <div class="eventDateChip">Fri Apr 18</div>
         </div>
@@ -90,7 +113,7 @@
         </div>
       </div>
 
-      <div class="eventCard" data-category="social" data-name="Spring Campus Festival">
+      <div class="eventCard" data-category="social" data-name="Tropical Fever" data-date="today" data-cost="free" data-format="in-person" data-keywords="campus activities board tropical fever festival tiger plaza social">
         <div class="eventCardBanner" style="background-color: #d4edda;">
           <div class="eventDateChip">Tues Apr 14</div>
         </div>
@@ -105,7 +128,7 @@
         </div>
       </div>
 
-      <div class="eventCard" data-category="career" data-name="Spring Career and Internship Fair">
+      <div class="eventCard" data-category="career" data-name="Spring Career and Internship Fair" data-date="upcoming" data-cost="free" data-format="in-person" data-keywords="career center internship jobs fair secu arena resume networking">
         <div class="eventCardBanner" style="background-color: #fff3cd;">
           <div class="eventDateChip">Mon Apr 21</div>
         </div>
@@ -120,7 +143,7 @@
         </div>
       </div>
 
-      <div class="eventCard" data-category="workshop" data-name="Intro to Machine Learning Workshop">
+      <div class="eventCard" data-category="workshop" data-name="Intro to Machine Learning Workshop" data-date="upcoming" data-cost="free" data-format="in-person" data-keywords="ai research lab machine learning workshop science building lab technology">
         <div class="eventCardBanner" style="background-color: #fde8e8;">
           <div class="eventDateChip">Tue Apr 22</div>
         </div>
@@ -135,7 +158,7 @@
         </div>
       </div>
 
-      <div class="eventCard" data-category="academic" data-name="Resume and Cover Letter Workshop">
+      <div class="eventCard" data-category="academic" data-name="Resume and Cover Letter Workshop" data-date="upcoming" data-cost="free" data-format="in-person" data-keywords="writing center resume cover letter workshop library career academic">
         <div class="eventCardBanner" style="background-color: #ddeaff;">
           <div class="eventDateChip">Thu Apr 24</div>
         </div>
@@ -150,7 +173,7 @@
         </div>
       </div>
 
-      <div class="eventCard" data-category="social" data-name="Spring Orchestra Concert">
+      <div class="eventCard" data-category="social" data-name="Spring Orchestra Concert" data-date="upcoming" data-cost="paid" data-format="in-person" data-keywords="music department orchestra concert performing arts hall social music">
         <div class="eventCardBanner" style="background-color: #d4edda;">
           <div class="eventDateChip">Fri Apr 25</div>
         </div>
@@ -165,7 +188,24 @@
         </div>
       </div>
 
+      <div class="eventCard" data-category="workshop" data-name="Code Review Night" data-date="upcoming" data-cost="free" data-format="virtual" data-keywords="code review night online virtual workshop programming">
+        <div class="eventCardBanner" style="background-color: #fde8e8;">
+          <div class="eventDateChip">Thu Apr 24</div>
+        </div>
+        <div class="eventCardBody">
+          <div class="eventOrg">Computer Science Club</div>
+          <div class="eventName">Code Review Night</div>
+          <div class="eventMeta">Thu Apr 24 &middot; 6:00pm &ndash; 8:00pm<br>Online</div>
+          <div class="eventFooter">
+            <span class="categoryBadge badgeRed">Workshop</span>
+            <button class="rsvpBtn" onclick="rsvp(this)">RSVP</button>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <div id="noResultsMessage">No events match your search.</div>
 
     <!-- Event Details -->
     <div class="sectionHeader">
@@ -275,14 +315,15 @@
   <div id="footer">
     <div id="footerLogo">towsonevents</div>
     <ul id="footerLinks">
-      <li><a href="#">About</a></li>
-      <li><a href="#">Privacy</a></li>
-      <li><a href="#">Help</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="https://www.towson.edu/about/" target="_blank">About TU</a></li>
+      <li><a href="https://www.towson.edu/privacy.html" target="_blank">Privacy</a></li>
+      <li><a href="https://www.towson.edu/about/accessibility/" target="_blank">Accessibility</a></li>
+      <li><a href="https://www.towson.edu/contact/" target="_blank">Contact</a></li>
     </ul>
-    <div id="footerCopy"> Towson Campus Events App</div>
+    <div id="footerCopy">Student project for Towson campus event discovery</div>
   </div>
 
+  <script type="text/javascript" src="script.js"></script>
 
 </body>
 </html>
