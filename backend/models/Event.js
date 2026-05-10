@@ -1,10 +1,15 @@
+
 const mongoose = require('mongoose');
 
 const EventModel = new mongoose.Schema({
   name:     { type: String, required: true },
-  org:      { type: String, required: true },
+  org:      { type: mongoose.Schema.Types.ObjectId, ref: 'Org', required: true }, // Relational link to the Org collection
   date:     { type: Date,   required: true },
-  location: String,
+  location: { 
+    building: String, 
+    room: String,
+    coordinates: { lat: Number, lng: Number } // For map/navigation support
+  },
   category: { type: String, enum: ['academic', 'social', 'career', 'workshop'] },
   capacity: Number,
   about:    String,
