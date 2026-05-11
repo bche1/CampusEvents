@@ -798,3 +798,126 @@ body.darkMode #calendarLinks {
 body.darkMode #footer {
   background-color: #0b1020;
 }
+
+.hiddenView {
+  display: none;
+}
+
+#browseIntroCard {
+  background-color: #ffffff;
+  border-radius: 18px;
+  padding: 18px 20px;
+  font-size: 14px;
+  color: #555e7a;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  margin-bottom: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#browseEventGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+#browseNoResultsMessage {
+  display: none;
+  background-color: #ffffff;
+  border-radius: 18px;
+  padding: 22px;
+  text-align: center;
+  font-size: 14px;
+  color: #555e7a;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  margin-bottom: 24px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#browsePagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.pageBtn {
+  border: none;
+  background-color: #ffffff;
+  color: #111111;
+  padding: 8px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.pageBtn.active {
+  background-color: #ffbb00;
+}
+
+body.darkMode #browseIntroCard,
+body.darkMode #browseNoResultsMessage,
+body.darkMode .pageBtn {
+  background-color: #16233a;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+body.darkMode .pageBtn.active {
+  background-color: #ffbb00;
+  color: #111111;
+}
+
+/* Browse page event cards */
+#browseEventGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+#browseEventGrid .eventCard {
+  min-height: 250px;
+}
+
+#browseEventGrid .eventCardBanner {
+  height: 92px;
+}
+
+#browseEventGrid .eventCardBody {
+  padding: 16px;
+}
+
+#browseEventGrid .eventOrg {
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+#browseEventGrid .eventName {
+  font-size: 15px;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+#browseEventGrid .eventMeta {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+#browseEventGrid .eventFooter {
+  margin-top: auto;
+}
+
+#browseEventGrid .eventCard {
+  display: flex;
+  flex-direction: column;
+}
+
+#browseEventGrid .eventCardBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
