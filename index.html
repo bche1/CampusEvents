@@ -3,7 +3,7 @@
 <head>
   <title>Campus Events App</title>
   <link rel="stylesheet" type="text/css" href="styles.css" />
-  <script type="text/javascript" src="script.js"></script>
+  
 </head>
 <body>
 
@@ -11,20 +11,44 @@
   <div id="navBar">
     <div id="navLogo">towson<span>events</span></div>
     <ul id="navLinks">
-      <li><a href="#" class="active">Browse</a></li>
-      <li><a href="#">My events</a></li>
+      <li><a href="#" id="myEventsNav" class="active" onclick="showView('myEvents')">My events</a></li>
+      <li><a href="#" id="browseNav" onclick="showView('browse')">Browse</a></li>
       <li><a href="#">Organizations</a></li>
       <li><a href="#">Calendar</a></li>
     </ul>
-    <div id="navSemester">Spring 2026</div>
+    <div id="navRight">
+      <div id="navSemester">Spring 2026</div>
+
+      <label class="themeSwitch">
+        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+        <span class="themeSlider"></span>
+      </label>
+    </div>
   </div>
 
   <!-- hero -->
   <div id="hero">
+
+    <div id="heroSlideshow">
+      <div class="heroSlide active" style="background-image: url('images/campus1.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus2.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus3.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus4.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus5.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus6.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus7.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus8.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus9.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus10.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus11.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus12.jpg');"></div>
+      <div class="heroSlide" style="background-image: url('images/campus13.jpg');"></div>
+    </div>
+
     <h1>Find events that <span>matter to you</span> on campus</h1>
     <p>Browse, RSVP, and stay updated on upcoming events from clubs, departments, and organizations across campus.</p>
     <div id="heroButtons">
-      <button class="btnPrimary">Explore events</button>
+      <button class="btnPrimary" onclick="showView('browse')">Explore events</button>
       <button class="btnSecondary">Host an event</button>
     </div>
     <div id="heroStats">
@@ -54,7 +78,6 @@
       <option value="workshop">Workshop</option>
     </select>
     <div id="filterPills">
-      <button class="filterPill active" onclick="setPill(this, 'all')">All</button>
       <button class="filterPill" onclick="setPill(this, 'today')">Today</button>
       <button class="filterPill" onclick="setPill(this, 'free')">Free</button>
       <button class="filterPill" onclick="setPill(this, 'virtual')">Virtual</button>
@@ -63,209 +86,145 @@
 
   <!-- Main section -->
   <div id="main">
+    <div id="myEventsView">
 
-    <!-- RSVP Confirmation -->
-    <div id="rsvpNotice">RSVP Successful! Check email for confirmation.</div>
+      <!-- RSVP Confirmation -->
+      <div id="rsvpNotice">RSVP Successful! Check email for confirmation.</div>
 
-    <!-- Upcoming events -->
-    <div class="sectionHeader">
-      <h2>Upcoming events</h2>
-      <a href="#">See all &rarr;</a>
+      <!-- Upcoming events -->
+      <div class="sectionHeader">
+        <h2>My events</h2>
+        <a href="#">See all &rarr;</a>
+      </div>
+
+      <div id="eventGrid">
+        <!-- Events will be loaded from the backend here -->
+      </div>
+
+      <div id="noResultsMessage">No events match your search.</div>
+
+      <!-- Event Details -->
+      <div class="sectionHeader">
+        <h2>Event detail</h2>
+      </div>
+
+      <div id="detailSection">
+
+        <div id="eventDetailCard">
+          <div class="detailHero">
+            <div class="detailEyebrow">Academic &middot; Hackathon</div>
+            <div class="detailTitle">CS Club Fall Hackathon</div>
+            <div class="detailOrg">Hosted by BitBrothers</div>
+          </div>
+          <div class="detailBody">
+            <div class="detailInfoGrid">
+              <div>
+                <div class="detailInfoLabel">Date &amp; time</div>
+                <div class="detailInfoVal">Fri Apr 18, 9am &ndash; 9pm</div>
+              </div>
+              <div>
+                <div class="detailInfoLabel">Location</div>
+                <div class="detailInfoVal">York, Rm 302</div>
+              </div>
+              <div>
+                <div class="detailInfoLabel">Organization</div>
+                <div class="detailInfoVal">BitBrothers</div>
+              </div>
+              <div>
+                <div class="detailInfoLabel">Capacity</div>
+                <div class="detailInfoVal">60 total &middot; <span id="spotsLeft">12 spots left</span></div>
+              </div>
+            </div>
+            <div class="detailDivider"></div>
+            <div class="detailAboutTitle">About this event</div>
+            <div class="detailAboutText">
+              Build something amazing in 12 hours. Open to all skill levels. Teams of 2 - 4 people. Food, drinks, and prizes provided throughout the event.
+            </div>
+            <button class="bigRsvpBtn" onclick="rsvp(this)">RSVP for this event</button>
+            <div id="calendarLinks">
+              Add to calendar &nbsp;&middot;&nbsp; Share event
+            </div>
+          </div>
+        </div>
+
+        <div id="sidebar">
+
+          <div class="sideCard">
+            <div class="sideCardTitle">Who's attending (48)</div>
+            <div class="attendeeRow">
+              <div class="avatar" style="background-color: #2d5be3;">AB</div>
+              <div class="avatar" style="background-color: #27500a;">CK</div>
+              <div class="avatar" style="background-color: #c62828;">DM</div>
+              <div class="avatar" style="background-color: #6a1b9a;">EL</div>
+              <div class="avatar" style="background-color: #004d40;">FN</div>
+              <div class="avatar" style="background-color: #854f0b;">GP</div>
+            </div>
+            <div class="attendeeCount">Alex B., Casey K., and 46 others are going</div>
+          </div>
+
+          <div class="sideCard">
+            <div class="sideCardTitle">Similar events</div>
+            <div class="relatedEvent">
+              <div class="relatedDot" style="background-color: #2d5be3;">ML</div>
+              <div>
+                <div class="relatedName">Intro to ML Workshop</div>
+                <div class="relatedMeta">Tue Apr 22 &middot; AI Research Lab</div>
+              </div>
+            </div>
+            <div class="relatedEvent">
+              <div class="relatedDot" style="background-color: #27500a;">CR</div>
+              <div>
+                <div class="relatedName">Code Review Night</div>
+                <div class="relatedMeta">Thu Apr 24 &middot; Online</div>
+              </div>
+            </div>
+            <div class="relatedEvent">
+              <div class="relatedDot" style="background-color: #854f0b;">DD</div>
+              <div>
+                <div class="relatedName">Demo Day &ndash; Capstone Projects</div>
+                <div class="relatedMeta">Fri May 2 &middot; Engineering Hall</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sideCard">
+            <div class="sideCardTitle">Notification preferences</div>
+            <div id="notifPrefs">
+              <div class="notifRow">
+                Interest-based alerts <span class="notifOn">On</span>
+              </div>
+              <div class="notifRow">
+                Event reminders <span class="notifOn">On</span>
+              </div>
+              <div class="notifRow notifLast">
+                Email delivery <span class="notifOff">Off</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
-    <div id="eventGrid">
-
-      <div class="eventCard" data-category="academic" data-name="CS Club Fall Hackathon">
-        <div class="eventCardBanner" style="background-color: #ddeaff;">
-          <div class="eventDateChip">Fri Apr 18</div>
-        </div>
-        <div class="eventCardBody">
-          <div class="eventOrg">Computer Science Club</div>
-          <div class="eventName">CS Club Fall Hackathon</div>
-          <div class="eventMeta">Fri Apr 18 &middot; 9:00am &ndash; 9:00pm<br>York Rd, Room 201</div>
-          <div class="eventFooter">
-            <span class="categoryBadge badgeBlue">Academic</span>
-            <button class="rsvpBtn" onclick="rsvp(this)">RSVP</button>
-          </div>
-        </div>
+    <div id="browseView" class="hiddenView">
+      <div class="sectionHeader">
+        <h2>Browse events</h2>
+        <a href="#">Newest first</a>
       </div>
 
-      <div class="eventCard" data-category="social" data-name="Spring Campus Festival">
-        <div class="eventCardBanner" style="background-color: #d4edda;">
-          <div class="eventDateChip">Tues Apr 14</div>
-        </div>
-        <div class="eventCardBody">
-          <div class="eventOrg">Campus Activities Board</div>
-          <div class="eventName">Tropical Fever</div>
-          <div class="eventMeta">Tues Apr 14 &middot; 4:00pm &ndash; 7:00pm<br>Tiger Plaza</div>
-          <div class="eventFooter">
-            <span class="categoryBadge badgeGreen">Social</span>
-            <button class="rsvpBtn going">Going</button>
-          </div>
-        </div>
+      <div id="browseIntroCard">
+        Search, filter, and explore campus events from Towson organizations.
       </div>
 
-      <div class="eventCard" data-category="career" data-name="Spring Career and Internship Fair">
-        <div class="eventCardBanner" style="background-color: #fff3cd;">
-          <div class="eventDateChip">Mon Apr 21</div>
-        </div>
-        <div class="eventCardBody">
-          <div class="eventOrg">Career Center</div>
-          <div class="eventName">Spring Career &amp; Internship Fair</div>
-          <div class="eventMeta">Mon Apr 21 &middot; 10:00am &ndash; 4:00pm<br>SECU Arena</div>
-          <div class="eventFooter">
-            <span class="categoryBadge badgeAmber">Career</span>
-            <button class="rsvpBtn" onclick="rsvp(this)">RSVP</button>
-          </div>
-        </div>
+      <div id="browseEventGrid">
+        <!-- Browse events will be loaded here -->
       </div>
 
-      <div class="eventCard" data-category="workshop" data-name="Intro to Machine Learning Workshop">
-        <div class="eventCardBanner" style="background-color: #fde8e8;">
-          <div class="eventDateChip">Tue Apr 22</div>
-        </div>
-        <div class="eventCardBody">
-          <div class="eventOrg">AI Research Lab</div>
-          <div class="eventName">Intro to Machine Learning Workshop</div>
-          <div class="eventMeta">Tue Apr 22 &middot; 3:00pm &ndash; 5:00pm<br>Science Building, Lab 4</div>
-          <div class="eventFooter">
-            <span class="categoryBadge badgeRed">Workshop</span>
-            <button class="rsvpBtn" onclick="rsvp(this)">RSVP</button>
-          </div>
-        </div>
-      </div>
+      <div id="browseNoResultsMessage">No events match your search.</div>
 
-      <div class="eventCard" data-category="academic" data-name="Resume and Cover Letter Workshop">
-        <div class="eventCardBanner" style="background-color: #ddeaff;">
-          <div class="eventDateChip">Thu Apr 24</div>
-        </div>
-        <div class="eventCardBody">
-          <div class="eventOrg">Writing Center</div>
-          <div class="eventName">Resume &amp; Cover Letter Workshop</div>
-          <div class="eventMeta">Thu Apr 24 &middot; 1:00pm &ndash; 3:00pm<br>Library, Room 102</div>
-          <div class="eventFooter">
-            <span class="categoryBadge badgeBlue">Academic</span>
-            <button class="rsvpBtn" onclick="rsvp(this)">RSVP</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="eventCard" data-category="social" data-name="Spring Orchestra Concert">
-        <div class="eventCardBanner" style="background-color: #d4edda;">
-          <div class="eventDateChip">Fri Apr 25</div>
-        </div>
-        <div class="eventCardBody">
-          <div class="eventOrg">Music Department</div>
-          <div class="eventName">Spring Orchestra Concert</div>
-          <div class="eventMeta">Fri Apr 25 &middot; 7:00pm &ndash; 9:00pm<br>Performing Arts Hall</div>
-          <div class="eventFooter">
-            <span class="categoryBadge badgeGreen">Social</span>
-            <button class="rsvpBtn" onclick="rsvp(this)">RSVP</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Event Details -->
-    <div class="sectionHeader">
-      <h2>Event detail</h2>
-    </div>
-
-    <div id="detailSection">
-
-      <div id="eventDetailCard">
-        <div class="detailHero">
-          <div class="detailEyebrow">Academic &middot; Hackathon</div>
-          <div class="detailTitle">CS Club Fall Hackathon</div>
-          <div class="detailOrg">Hosted by BitBrothers</div>
-        </div>
-        <div class="detailBody">
-          <div class="detailInfoGrid">
-            <div>
-              <div class="detailInfoLabel">Date &amp; time</div>
-              <div class="detailInfoVal">Fri Apr 18, 9am &ndash; 9pm</div>
-            </div>
-            <div>
-              <div class="detailInfoLabel">Location</div>
-              <div class="detailInfoVal">York, Rm 302</div>
-            </div>
-            <div>
-              <div class="detailInfoLabel">Organization</div>
-              <div class="detailInfoVal">BitBrothers</div>
-            </div>
-            <div>
-              <div class="detailInfoLabel">Capacity</div>
-              <div class="detailInfoVal">60 total &middot; <span id="spotsLeft">12 spots left</span></div>
-            </div>
-          </div>
-          <div class="detailDivider"></div>
-          <div class="detailAboutTitle">About this event</div>
-          <div class="detailAboutText">
-            Build something amazing in 12 hours. Open to all skill levels. Teams of 2 - 4 people. Food, drinks, and prizes provided throughout the event.
-          </div>
-          <button class="bigRsvpBtn" onclick="rsvp(this)">RSVP for this event</button>
-          <div id="calendarLinks">
-            Add to calendar &nbsp;&middot;&nbsp; Share event
-          </div>
-        </div>
-      </div>
-
-      <div id="sidebar">
-
-        <div class="sideCard">
-          <div class="sideCardTitle">Who's attending (48)</div>
-          <div class="attendeeRow">
-            <div class="avatar" style="background-color: #2d5be3;">AB</div>
-            <div class="avatar" style="background-color: #27500a;">CK</div>
-            <div class="avatar" style="background-color: #c62828;">DM</div>
-            <div class="avatar" style="background-color: #6a1b9a;">EL</div>
-            <div class="avatar" style="background-color: #004d40;">FN</div>
-            <div class="avatar" style="background-color: #854f0b;">GP</div>
-          </div>
-          <div class="attendeeCount">Alex B., Casey K., and 46 others are going</div>
-        </div>
-
-        <div class="sideCard">
-          <div class="sideCardTitle">Similar events</div>
-          <div class="relatedEvent">
-            <div class="relatedDot" style="background-color: #2d5be3;">ML</div>
-            <div>
-              <div class="relatedName">Intro to ML Workshop</div>
-              <div class="relatedMeta">Tue Apr 22 &middot; AI Research Lab</div>
-            </div>
-          </div>
-          <div class="relatedEvent">
-            <div class="relatedDot" style="background-color: #27500a;">CR</div>
-            <div>
-              <div class="relatedName">Code Review Night</div>
-              <div class="relatedMeta">Thu Apr 24 &middot; Online</div>
-            </div>
-          </div>
-          <div class="relatedEvent">
-            <div class="relatedDot" style="background-color: #854f0b;">DD</div>
-            <div>
-              <div class="relatedName">Demo Day &ndash; Capstone Projects</div>
-              <div class="relatedMeta">Fri May 2 &middot; Engineering Hall</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sideCard">
-          <div class="sideCardTitle">Notification preferences</div>
-          <div id="notifPrefs">
-            <div class="notifRow">
-              Interest-based alerts <span class="notifOn">On</span>
-            </div>
-            <div class="notifRow">
-              Event reminders <span class="notifOn">On</span>
-            </div>
-            <div class="notifRow notifLast">
-              Email delivery <span class="notifOff">Off</span>
-            </div>
-          </div>
-        </div>
-
+      <div id="browsePagination">
+        <!-- Page buttons will go here in Lab 4B -->
       </div>
     </div>
 
@@ -275,14 +234,15 @@
   <div id="footer">
     <div id="footerLogo">towsonevents</div>
     <ul id="footerLinks">
-      <li><a href="#">About</a></li>
-      <li><a href="#">Privacy</a></li>
-      <li><a href="#">Help</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="https://www.towson.edu/about/" target="_blank">About TU</a></li>
+      <li><a href="https://www.towson.edu/privacy.html" target="_blank">Privacy</a></li>
+      <li><a href="https://www.towson.edu/about/accessibility/" target="_blank">Accessibility</a></li>
+      <li><a href="https://www.towson.edu/contact/" target="_blank">Contact</a></li>
     </ul>
-    <div id="footerCopy"> Towson Campus Events App</div>
+    <div id="footerCopy">Student project for Towson campus event discovery</div>
   </div>
 
+  <script type="text/javascript" src="script.js"></script>
 
 </body>
 </html>
