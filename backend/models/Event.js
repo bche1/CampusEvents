@@ -8,6 +8,10 @@ const EventModel = new mongoose.Schema({
   category: { type: String, enum: ['academic', 'social', 'career', 'workshop'] },
   capacity: Number,
   about:    String,
+
+  // Used for imported events from Towson's official Localist calendar
+  externalId: String,
+  sourceUrl:  String
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', EventModel);

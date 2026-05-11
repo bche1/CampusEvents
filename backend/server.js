@@ -14,6 +14,7 @@ app.use('/api/rsvp',   require('./routes/rsvp'));
 app.use('/api/orgs',   require('./routes/orgs'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/auth', require('./routes/auth'));
+app.use("/api/import", require("./routes/import"));
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     app.listen(process.env.PORT || 5000, () =>
