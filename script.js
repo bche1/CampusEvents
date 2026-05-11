@@ -8,9 +8,10 @@ var currentUser = {
   username: localStorage.getItem("currentUsername"),
   email: localStorage.getItem("currentUserEmail")
 };
+
 var myEventIds = [];
 var allEvents = [];
-
+var backendOrgs = [];
 
 var activeFilters = {
   today: false,
@@ -21,7 +22,7 @@ var activeFilters = {
 var currentView = "myEvents";
 
 var browseCurrentPage = 1;
-var browseEventsPerPage = 2; // temp set to to 2
+var browseEventsPerPage = 16; // temp set to to 2
 
 var authMode = "login";
 var logoutConfirmActive = false;
@@ -55,30 +56,71 @@ function showView(viewName) {
 
   var myEventsView = document.getElementById("myEventsView");
   var browseView = document.getElementById("browseView");
+  var organizationsView = document.getElementById("organizationsView");
 
   var myEventsNav = document.getElementById("myEventsNav");
   var browseNav = document.getElementById("browseNav");
+  var orgsNav = document.getElementById("orgsNav");
 
-  if (viewName === "browse") {
+  if (myEventsView) {
     myEventsView.classList.add("hiddenView");
-    browseView.classList.remove("hiddenView");
-
-    myEventsNav.classList.remove("active");
-    browseNav.classList.add("active");
-
-    browseCurrentPage = 1;
-    restartViewAnimation(browseView);
-  } else {
-    myEventsView.classList.remove("hiddenView");
-    browseView.classList.add("hiddenView");
-
-    myEventsNav.classList.add("active");
-    browseNav.classList.remove("active");
-
-    restartViewAnimation(myEventsView);
   }
 
-  filterEvents();
+  if (browseView) {
+    browseView.classList.add("hiddenView");
+  }
+
+  if (organizationsView) {
+    organizationsView.classList.add("hiddenView");
+  }
+
+  if (myEventsNav) {
+    myEventsNav.classList.remove("active");
+  }
+
+  if (browseNav) {
+    browseNav.classList.remove("active");
+  }
+
+  if (orgsNav) {
+    orgsNav.classList.remove("active");
+  }
+
+  if (viewName === "browse") {
+    if (browseView) {
+      browseView.classList.remove("hiddenView");
+      restartViewAnimation(browseView);
+    }
+
+    if (browseNav) {
+      browseNav.classList.add("active");
+    }
+
+    browseCurrentPage = 1;
+    filterEvents();
+  } else if (viewName === "organizations") {
+    if (organizationsView) {
+      organizationsView.classList.remove("hiddenView");
+      restartViewAnimation(organizationsView);
+    }
+
+    if (orgsNav) {
+      orgsNav.classList.add("active");
+    }
+
+    renderOrganizations();
+  } else {
+    if (myEventsView) {
+      myEventsView.classList.remove("hiddenView");
+      restartViewAnimation(myEventsView);
+    }
+
+    if (myEventsNav) {
+      myEventsNav.classList.add("active");
+    }
+
+    filterEvents();
+  }
 }
 
 function goToBrowseView() {
@@ -508,7 +550,7 @@ function filterEvents() {
   var filteredEvents = startingEvents.filter(function(eventItem) {
     var searchableText = (
       (eventItem.name || "") + " " +
-      (eventItem.org || "") + " " +
+      getEventOrgName(eventItem) + " " +
       (eventItem.location || "") + " " +
       (eventItem.category || "") + " " +
       (eventItem.about || "")
@@ -647,8 +689,8 @@ window.onload = function() {
   }
 
   updateAuthStatus();
+  loadOrgsFromBackend();
   loadEventsFromBackend();
-
 };
 
 function loadEventsFromBackend() {
@@ -680,14 +722,27 @@ function loadEventsFromBackend() {
 function loadOrgsFromBackend() {
   fetch(API_BASE_URL + "/orgs")
     .then(function(response) {
+      if (!response.ok) {
+        throw new Error("Could not load organizations. Status: " + response.status);
+      }
+
       return response.json();
     })
     .then(function(orgs) {
       backendOrgs = orgs;
       console.log("Loaded orgs from backend:", backendOrgs);
+
+      populateHostOrgSelect();
+
+      if (currentView === "organizations") {
+        renderOrganizations();
+      }
+
+      filterEvents();
     })
     .catch(function(error) {
       console.log("Could not load orgs:", error);
+      backendOrgs = [];
     });
 }
 
@@ -825,7 +880,7 @@ function renderEvents(events) {
         '<div class="eventDateChip">' + dateText + '</div>' +
       '</div>' +
       '<div class="eventCardBody">' +
-        '<div class="eventOrg">' + (eventItem.org || "Campus Organization") + '</div>' +
+        '<div class="eventOrg">' + getEventOrgName(eventItem) + '</div>' +
         '<div class="eventName">' + (eventItem.name || "Untitled Event") + '</div>' +
         '<div class="eventMeta">' + dateText + '<br>' + (eventItem.location || "Location TBD") + '</div>' +
         '<div class="eventFooter">' +
@@ -960,13 +1015,13 @@ function showEventDetails(eventId) {
   }
 
   if (detailOrg) {
-    detailOrg.textContent = "Hosted by " + (eventItem.org || "Campus Organization");
+    detailOrg.textContent = "Hosted by " + getEventOrgName(eventItem);
   }
 
   if (detailInfoVals.length >= 4) {
     detailInfoVals[0].textContent = dateText;
     detailInfoVals[1].textContent = eventItem.location || "Location TBD";
-    detailInfoVals[2].textContent = eventItem.org || "Campus Organization";
+    detailInfoVals[2].textContent = getEventOrgName(eventItem);
     detailInfoVals[3].textContent = (eventItem.capacity || "No") + " total";
   }
 
@@ -1069,4 +1124,354 @@ function submitAuthForm() {
   } else {
     loginUser();
   }
+}
+
+function getOrgById(orgId) {
+  if (!orgId) {
+    return null;
+  }
+
+  var cleanOrgId = normalizeId(orgId);
+
+  for (var i = 0; i < backendOrgs.length; i++) {
+    if (normalizeId(backendOrgs[i]._id) === cleanOrgId) {
+      return backendOrgs[i];
+    }
+  }
+
+  return null;
+}
+
+function getEventOrgName(eventItem) {
+  if (!eventItem || !eventItem.org) {
+    return "Campus Organization";
+  }
+
+  if (typeof eventItem.org === "object" && eventItem.org.name) {
+    return eventItem.org.name;
+  }
+
+  var matchingOrg = getOrgById(eventItem.org);
+
+  if (matchingOrg) {
+    return matchingOrg.name;
+  }
+
+  return String(eventItem.org);
+}
+
+function getEventOrgId(eventItem) {
+  if (!eventItem || !eventItem.org) {
+    return "";
+  }
+
+  return normalizeId(eventItem.org);
+}
+
+function getOrgInitials(orgName) {
+  if (!orgName) {
+    return "TU";
+  }
+
+  var words = orgName.trim().split(" ");
+  var initials = "";
+
+  for (var i = 0; i < words.length && i < 2; i++) {
+    if (words[i].length > 0) {
+      initials += words[i][0].toUpperCase();
+    }
+  }
+
+  return initials || "TU";
+}
+
+function getEventCountForOrg(orgId) {
+  var cleanOrgId = normalizeId(orgId);
+  var count = 0;
+
+  for (var i = 0; i < allEvents.length; i++) {
+    if (getEventOrgId(allEvents[i]) === cleanOrgId) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+function renderOrganizations() {
+  var orgGrid = document.getElementById("orgGrid");
+  var noResultsMessage = document.getElementById("orgNoResultsMessage");
+  var searchInput = document.getElementById("orgSearchInput");
+  var categorySelect = document.getElementById("orgCategorySelect");
+
+  if (!orgGrid) {
+    return;
+  }
+
+  var searchVal = "";
+
+  if (searchInput) {
+    searchVal = searchInput.value.toLowerCase().trim();
+  }
+
+  var categoryVal = "all";
+
+  if (categorySelect) {
+    categoryVal = categorySelect.value;
+  }
+
+  var filteredOrgs = backendOrgs.filter(function(org) {
+    var searchableText = (
+      (org.name || "") + " " +
+      (org.description || "") + " " +
+      (org.category || "")
+    ).toLowerCase();
+
+    var matchesSearch = searchableText.indexOf(searchVal) !== -1;
+    var matchesCategory = categoryVal === "all" || org.category === categoryVal;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  orgGrid.innerHTML = "";
+
+  if (filteredOrgs.length === 0) {
+    if (noResultsMessage) {
+      noResultsMessage.style.display = "block";
+    }
+
+    return;
+  }
+
+  if (noResultsMessage) {
+    noResultsMessage.style.display = "none";
+  }
+
+  for (var i = 0; i < filteredOrgs.length; i++) {
+    var org = filteredOrgs[i];
+    var card = document.createElement("div");
+    var eventCount = getEventCountForOrg(org._id);
+
+    card.className = "orgCard";
+
+    card.innerHTML =
+      '<div class="orgCardTop">' +
+        '<div class="orgAvatar">' + getOrgInitials(org.name) + '</div>' +
+        '<div>' +
+          '<div class="orgName">' + (org.name || "Campus Organization") + '</div>' +
+          '<div class="orgCategory">' + (org.category || "campus") + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="orgDescription">' +
+        (org.description || "This organization hosts campus events for Towson students.") +
+      '</div>' +
+      '<div class="orgStats">' +
+        '<span>' + eventCount + ' hosted event' + (eventCount === 1 ? '' : 's') + '</span>' +
+        '<span>Towson University</span>' +
+      '</div>' +
+      '<button class="orgViewBtn" onclick="viewOrgEvents(\'' + normalizeId(org._id) + '\')">View events</button>';
+
+    orgGrid.appendChild(card);
+  }
+}
+
+function viewOrgEvents(orgId) {
+  var matchingOrg = getOrgById(orgId);
+  var searchInput = document.getElementById("searchInput");
+  var categorySelect = document.getElementById("categorySelect");
+
+  if (searchInput && matchingOrg) {
+    searchInput.value = matchingOrg.name;
+  }
+
+  if (categorySelect) {
+    categorySelect.value = "all";
+  }
+
+  showView("browse");
+}
+
+function userCanHostEvents() {
+  if (!currentUser.id) {
+    return false;
+  }
+
+  /*
+    Backend currently may not send role to the frontend.
+    If role exists, enforce org_host/admin.
+    If role does not exist yet, allow logged-in users so the demo can still use the form.
+  */
+  if (currentUser.role) {
+    return currentUser.role === "org_host" || currentUser.role === "admin";
+  }
+
+  return true;
+}
+
+function handleHostEventClick() {
+  if (!currentUser.id) {
+    openAuthModal("login");
+
+    var statusMessage = document.getElementById("authStatusMessage");
+
+    if (statusMessage) {
+      statusMessage.textContent = "Please log in before hosting an event.";
+      statusMessage.className = "error";
+    }
+
+    return;
+  }
+
+  if (!userCanHostEvents()) {
+    var notice = document.getElementById("rsvpNotice");
+
+    if (notice) {
+      notice.textContent = "Only organization hosts and admins can create events.";
+      notice.className = "error";
+      notice.style.display = "block";
+
+      setTimeout(function() {
+        notice.style.display = "none";
+      }, 4000);
+    }
+
+    return;
+  }
+
+  openHostEventForm();
+}
+
+function openHostEventForm() {
+  var overlay = document.getElementById("hostEventOverlay");
+  var statusMessage = document.getElementById("hostEventStatusMessage");
+
+  if (!overlay) {
+    return;
+  }
+
+  if (statusMessage) {
+    statusMessage.textContent = "";
+    statusMessage.className = "";
+  }
+
+  populateHostOrgSelect();
+
+  overlay.classList.remove("hiddenView");
+}
+
+function closeHostEventForm() {
+  var overlay = document.getElementById("hostEventOverlay");
+
+  if (overlay) {
+    overlay.classList.add("hiddenView");
+  }
+}
+
+function populateHostOrgSelect() {
+  var select = document.getElementById("hostEventOrg");
+
+  if (!select) {
+    return;
+  }
+
+  select.innerHTML = '<option value="">Select organization</option>';
+
+  for (var i = 0; i < backendOrgs.length; i++) {
+    var org = backendOrgs[i];
+
+    select.innerHTML +=
+      '<option value="' + normalizeId(org._id) + '">' +
+        (org.name || "Campus Organization") +
+      '</option>';
+  }
+}
+
+function submitHostEvent() {
+  var nameInput = document.getElementById("hostEventName");
+  var orgInput = document.getElementById("hostEventOrg");
+  var dateInput = document.getElementById("hostEventDate");
+  var locationInput = document.getElementById("hostEventLocation");
+  var categoryInput = document.getElementById("hostEventCategory");
+  var capacityInput = document.getElementById("hostEventCapacity");
+  var aboutInput = document.getElementById("hostEventAbout");
+  var statusMessage = document.getElementById("hostEventStatusMessage");
+
+  var name = nameInput.value.trim();
+  var org = orgInput.value;
+  var date = dateInput.value;
+  var location = locationInput.value.trim();
+  var category = categoryInput.value;
+  var capacity = capacityInput.value;
+  var about = aboutInput.value.trim();
+
+  if (statusMessage) {
+    statusMessage.textContent = "";
+    statusMessage.className = "";
+  }
+
+  if (!name || !org || !date || !category) {
+    if (statusMessage) {
+      statusMessage.textContent = "Please enter an event name, organization, date, and category.";
+      statusMessage.className = "error";
+    }
+
+    return;
+  }
+
+  var eventData = {
+    name: name,
+    org: org,
+    date: new Date(date + "T12:00:00").toISOString(),
+    location: location,
+    category: category,
+    capacity: capacity ? Number(capacity) : undefined,
+    about: about
+  };
+  fetch(API_BASE_URL + "/events", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(eventData)
+  })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        if (!response.ok) {
+          throw data;
+        }
+
+        return data;
+      });
+    })
+    .then(function(savedEvent) {
+      console.log("Created event:", savedEvent);
+
+      if (statusMessage) {
+        statusMessage.textContent = "Event created successfully.";
+        statusMessage.className = "success";
+      }
+
+      nameInput.value = "";
+      orgInput.value = "";
+      dateInput.value = "";
+      locationInput.value = "";
+      categoryInput.value = "";
+      capacityInput.value = "";
+      aboutInput.value = "";
+
+      loadEventsFromBackend();
+
+      setTimeout(function() {
+        closeHostEventForm();
+        showView("browse");
+      }, 900);
+    })
+    .catch(function(error) {
+      console.log("Could not create event:", error);
+
+      if (statusMessage) {
+        statusMessage.textContent = error.error || error.message || "Could not create event.";
+        statusMessage.className = "error";
+      }
+    });
 }

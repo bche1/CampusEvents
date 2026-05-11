@@ -13,7 +13,7 @@
     <ul id="navLinks">
       <li><a href="#" id="myEventsNav" class="active" onclick="showView('myEvents')">My Events</a></li>
       <li><a href="#" id="browseNav" onclick="showView('browse')">Browse</a></li>
-      <li><a href="#">Organizations</a></li>
+      <li><a href="#" id="orgsNav" onclick="showView('organizations')">Organizations</a></li>
       <li><a href="#">Calendar</a></li>
     </ul>
     <div id="navRight">
@@ -60,7 +60,7 @@
     <p>Browse, RSVP, and stay updated on upcoming events from clubs, departments, and organizations across campus.</p>
     <div id="heroButtons">
       <button class="btnPrimary" onclick="goToBrowseView()">Explore events</button>
-      <button class="btnSecondary">Host an event</button>
+      <button class="btnSecondary" onclick="handleHostEventClick()">Host an event</button>
     </div>
     <div id="heroStats">
       <div>
@@ -106,7 +106,7 @@
       <!-- Upcoming events -->
       <div class="sectionHeader">
         <h2>My events</h2>
-        <a href="#">See all &rarr;</a>
+        <a href="#" onclick="goToBrowseView()">Find More &rarr;</a>
       </div>
 
       <div id="eventGrid">
@@ -240,8 +240,39 @@
       </div>
     </div>
 
-  </div>
+    <div id="organizationsView" class="hiddenView viewPanel">
+    <div class="sectionHeader">
+      <h2>Organizations</h2>
+      <a href="#" onclick="goToBrowseView()">Browse all events &rarr;</a>
+    </div>
 
+    <div id="orgIntroCard">
+      Explore Towson campus organizations and find events hosted by each group.
+    </div>
+
+    <div id="orgSearchBar">
+      <input
+        type="text"
+        id="orgSearchInput"
+        placeholder="Search organizations..."
+        onkeyup="renderOrganizations()"
+      />
+
+      <select id="orgCategorySelect" onchange="renderOrganizations()">
+        <option value="all">All categories</option>
+        <option value="academic">Academic</option>
+        <option value="social">Social</option>
+        <option value="career">Career</option>
+        <option value="workshop">Workshop</option>
+      </select>
+    </div>
+
+    <div id="orgGrid"></div>
+
+      <div id="orgNoResultsMessage">No organizations match your search.</div>
+    </div>
+  </div>
+    
   <!-- Footer -->
   <div id="footer">
     <div id="footerLogo">towsonevents</div>
@@ -279,6 +310,46 @@
       </div>
     </div>
   </div>
+
+  <div id="hostEventOverlay" class="hiddenView" onclick="closeHostEventForm()">
+  <div id="hostEventModal" onclick="event.stopPropagation()">
+    <button id="hostEventCloseBtn" onclick="closeHostEventForm()">×</button>
+
+    <div id="hostEventModalHeader">
+      <div id="hostEventEyebrow">Organization Tools</div>
+      <h2>Host an Event</h2>
+      <p>Create a campus event connected to an organization.</p>
+    </div>
+
+    <div id="hostEventModalBody">
+      <div id="hostEventStatusMessage"></div>
+
+    <input type="text" id="hostEventName" placeholder="Event name" />
+
+    <select id="hostEventOrg">
+      <option value="">Select organization</option>
+    </select>
+
+    <input type="date" id="hostEventDate" />
+
+    <input type="text" id="hostEventLocation" placeholder="Location" />
+
+    <select id="hostEventCategory">
+      <option value="">Select category</option>
+      <option value="academic">Academic</option>
+      <option value="social">Social</option>
+      <option value="career">Career</option>
+      <option value="workshop">Workshop</option>
+    </select>
+
+    <input type="number" id="hostEventCapacity" placeholder="Capacity" />
+
+    <textarea id="hostEventAbout" placeholder="Event description"></textarea>
+
+    <button id="hostEventSubmitBtn" onclick="submitHostEvent()">Create event</button>
+  </div>
+</div>
+</div>
 
   <script type="text/javascript" src="script.js"></script>
 
