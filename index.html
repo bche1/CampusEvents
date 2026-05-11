@@ -11,18 +11,29 @@
   <div id="navBar">
     <div id="navLogo">towson<span>events</span></div>
     <ul id="navLinks">
-      <li><a href="#" id="myEventsNav" class="active" onclick="showView('myEvents')">My events</a></li>
+      <li><a href="#" id="myEventsNav" class="active" onclick="showView('myEvents')">My Events</a></li>
       <li><a href="#" id="browseNav" onclick="showView('browse')">Browse</a></li>
       <li><a href="#">Organizations</a></li>
       <li><a href="#">Calendar</a></li>
     </ul>
     <div id="navRight">
-      <div id="navSemester">Spring 2026</div>
+      <div id="navAuthGroup">
+        <button id="loginNavBtn" class="navAuthBtn" onclick="openAuthModal('login')">Login</button>
+        <button id="registerNavBtn" class="navAuthBtn" onclick="openAuthModal('register')">Register</button>
 
-      <label class="themeSwitch">
-        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
-        <span class="themeSlider"></span>
-      </label>
+        <div id="navUserStatus">Not logged in</div>
+
+        <button id="logoutNavBtn" class="navAuthBtn hiddenView" onclick="logoutUser()">Logout</button>
+      </div>
+
+      <div id="navUtilityGroup">
+        <div id="navSemester">Spring 2026</div>
+
+        <label class="themeSwitch">
+          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+          <span class="themeSlider"></span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -48,7 +59,7 @@
     <h1>Find events that <span>matter to you</span> on campus</h1>
     <p>Browse, RSVP, and stay updated on upcoming events from clubs, departments, and organizations across campus.</p>
     <div id="heroButtons">
-      <button class="btnPrimary" onclick="showView('browse')">Explore events</button>
+      <button class="btnPrimary" onclick="goToBrowseView()">Explore events</button>
       <button class="btnSecondary">Host an event</button>
     </div>
     <div id="heroStats">
@@ -86,10 +97,11 @@
 
   <!-- Main section -->
   <div id="main">
-    <div id="myEventsView">
+    <div id="myEventsView" class="viewPanel">
 
       <!-- RSVP Confirmation -->
       <div id="rsvpNotice">RSVP Successful! Check email for confirmation.</div>
+        
 
       <!-- Upcoming events -->
       <div class="sectionHeader">
@@ -101,7 +113,7 @@
         <!-- Events will be loaded from the backend here -->
       </div>
 
-      <div id="noResultsMessage">No events match your search.</div>
+      <div id="noResultsMessage">You have not RSVP’d to any events yet.</div>
 
       <!-- Event Details -->
       <div class="sectionHeader">
@@ -207,7 +219,7 @@
 
     </div>
 
-    <div id="browseView" class="hiddenView">
+    <div id="browseView" class="hiddenView viewPanel">
       <div class="sectionHeader">
         <h2>Browse events</h2>
         <a href="#">Newest first</a>
@@ -240,6 +252,32 @@
       <li><a href="https://www.towson.edu/contact/" target="_blank">Contact</a></li>
     </ul>
     <div id="footerCopy">Student project for Towson campus event discovery</div>
+  </div>
+
+  <div id="authOverlay" class="hiddenView" onclick="closeAuthModal()">
+    <div id="authModal" onclick="event.stopPropagation()">
+      <button id="authCloseBtn" onclick="closeAuthModal()">×</button>
+
+      <div id="authModalHeader">
+        <div id="authModalEyebrow">Towson Events</div>
+        <h2 id="authModalTitle">Login</h2>
+        <p id="authModalText">Access your saved events and RSVP history.</p>
+      </div>
+
+      <div id="authModalBody">
+        <input type="text" id="authUsername" placeholder="Username" />
+        <input type="email" id="authEmail" placeholder="Email" />
+        <input type="password" id="authPassword" placeholder="Password" />
+
+        <button id="authSubmitBtn" onclick="submitAuthForm()">Login</button>
+        <p id="authStatusMessage"></p>
+
+        <div id="authSwitchText">
+          Need an account?
+          <button onclick="openAuthModal('register')">Register</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script type="text/javascript" src="script.js"></script>

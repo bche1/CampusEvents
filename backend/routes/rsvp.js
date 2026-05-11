@@ -1,7 +1,21 @@
 const router = require('express').Router();
 const Rsvp   = require('../models/Rsvp');
 
-console.log("RSVP ROUTE LOADED");
+// Get all RSVPs for a specific user
+//Oscar note: HAS TO BE ABOVE ANY ROUTE WITH router.get("/:eventId"
+router.get("/user/:userId", async function(req, res) {
+  try {
+    const rsvps = await Rsvp.find({ userId: req.params.userId });
+
+    res.json(rsvps);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to get RSVPs for user",
+      error: err.message
+    });
+  }
+});
+
 // GET all RSVPs for an event
 router.get('/:eventId', async (req, res) => {
   try {
@@ -41,5 +55,7 @@ router.delete('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 module.exports = router;
