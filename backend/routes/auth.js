@@ -54,14 +54,17 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({message: 'Your username or password is incorrect'})
         }
 
-        res.json ({
-            message: "login successful",
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email
-            }
-        });
+const jwt = require('jsonwebtoken');
+const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+res.json({
+    message: "login successful",
+    token,
+    user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+    }
+});
     }catch (err) {
     res.status(500).json({message: err.message})
 }
