@@ -81,18 +81,24 @@ Once the app is running:
 
 The backend exposes a REST API. Base URL: `http://localhost:8080/api`
 
+```
 | Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/events` | Get all events |
+|--------|----------|-------------|
+| `GET` | `/events` | Get all events (supports ?category= and ?q= filtering) |
 | `GET` | `/events/:id` | Get a single event |
-| `POST` | `/events` | Create a new event (Host/Admin) |
-| `PUT` | `/events/:id` | Update an event (Host/Admin) |
-| `DELETE` | `/events/:id` | Delete an event (Admin) |
-| `POST` | `/rsvp/:eventId` | RSVP to an event |
-| `DELETE` | `/rsvp/:eventId` | Cancel an RSVP |
+| `POST` | `/events` | Create a new event |
+| `DELETE` | `/events/:id` | Delete an event |
+| `GET` | `/orgs` | Get all organizations |
+| `GET` | `/orgs/:id` | Get a single organization |
+| `POST` | `/orgs` | Create a new organization |
+| `DELETE` | `/orgs/:id` | Delete an organization |
+| `GET` | `/rsvp/:eventId` | Get all RSVPs for an event |
+| `POST` | `/rsvp` | RSVP to an event |
+| `DELETE` | `/rsvp` | Cancel an RSVP |
 | `GET` | `/users/:id` | Get user profile |
 | `POST` | `/auth/register` | Register a new user |
 | `POST` | `/auth/login` | Login and receive JWT token |
+```
 
 
 
