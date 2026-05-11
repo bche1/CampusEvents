@@ -45,14 +45,16 @@ Towson University's existing event services are fragmented, non-interactive, and
 
 ## Tech Stack
 
-| Category        | Technology                               |
-|-----------------|------------------------------------------|
-| Languages       | JavaScript                        |
-| Frameworks      | Node.js, Express.js                      |
-| Database        | MongoDB                                  |
-| Hosting         | Vercel (Frontend)                        |
-| Version Control | GitHub                                   |
-| Code Editor      | VScode
+| Category        | Technology                                                                         |
+|-----------------|------------------------------------------------------------------------------------|                                          
+| Languages       | JavaScript                                                                         |
+| Frameworks      | Node.js, Express.js                                                                |
+| Database        | MongoDB, Mongoose                                                                  |
+| Authentication  | bcrypt, JSON Web Tokens (JWT)                                                      |
+| Hosting         | Vercel (Frontend), Render (Backend), MongoDB Atlas (Database)                      |
+| Version Control | GitHub                                                                             |
+| Code Editor     | VScode                                                                             |
+
 
 
 ## Getting Started
