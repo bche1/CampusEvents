@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => { console.log(req.method, req.path); next(); }); // ← add this
 // Routes
+app.use('/api/auth',   require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/rsvp',   require('./routes/rsvp'));
 app.use('/api/orgs',   require('./routes/orgs'));
