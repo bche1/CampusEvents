@@ -7,8 +7,9 @@ var currentUser = {
   username: localStorage.getItem("currentUsername"),
   email: localStorage.getItem("currentUserEmail")
 };
-
+var myEventIds = [];
 var allEvents = [];
+
 
 var activeFilters = {
   today: false,
@@ -170,6 +171,9 @@ function loginUser() {
 
         updateAuthStatus();
         closeAuthModal();
+        filterEvents();
+        loadMyRsvpsFromBackend();
+
         alert("Logged in as " + currentUser.username);
       } else {
         alert(result.message || "Login failed.");
@@ -212,6 +216,8 @@ function logoutUser() {
   document.removeEventListener("click", cancelLogoutConfirm);
 
   updateAuthStatus();
+  myEventIds = [];
+  filterEvents();
 }
 
 function cancelLogoutConfirm(event) {
@@ -320,6 +326,9 @@ function rsvp(clickEvent, button, eventIdOverride) {
     .then(function(result) {
       console.log("RSVP saved:", result);
 
+      saveMyEventId(eventId);
+      loadMyRsvpsFromBackend();
+
       if (button) {
         button.textContent = "Going";
         button.className = "rsvpBtn going";
@@ -340,6 +349,43 @@ function rsvp(clickEvent, button, eventIdOverride) {
       console.log("Could not save RSVP:", error);
       alert("Could not save RSVP.");
     });
+}
+
+function loadMyRsvpsFromBackend() {
+  if (!currentUser.id) {
+    myEventIds = [];
+    filterEvents();
+    return;
+  }
+
+  fetch(API_BASE_URL + "/rsvp/user/" + currentUser.id)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(rsvps) {
+      console.log("Loaded my RSVPs:", rsvps);
+
+      myEventIds = rsvps.map(function(rsvp) {
+        return rsvp.eventId;
+      });
+
+      filterEvents();
+    })
+    .catch(function(error) {
+      console.log("Could not load user RSVPs:", error);
+    });
+}
+
+function saveMyEventId(eventId) {
+  if (!myEventIds.includes(eventId)) {
+    myEventIds.push(eventId);
+  }
+}
+
+function getMyEvents() {
+  return allEvents.filter(function(eventItem) {
+    return myEventIds.includes(eventItem._id);
+  });
 }
 
 function setPill(clickedPill, filter) {
@@ -364,7 +410,12 @@ function filterEvents() {
   var searchVal = searchInput.value.toLowerCase().trim();
   var categoryVal = categorySelect.value;
 
-  var filteredEvents = allEvents.filter(function(eventItem) {
+  var startingEvents = allEvents;
+  if (currentView === "myEvents") {
+    startingEvents = getMyEvents();
+  }
+
+  var filteredEvents = startingEvents.filter(function(eventItem) {
     var searchableText = (
       (eventItem.name || "") + " " +
       (eventItem.org || "") + " " +
@@ -841,6 +892,12 @@ function updateNoResultsMessage(count) {
   }
 
   if (count === 0) {
+    if (currentView === "myEvents") {
+      noResultsMessage.textContent = "You have not RSVP’d to any events yet.";
+    } else {
+      noResultsMessage.textContent = "No events match your search.";
+    }
+
     noResultsMessage.style.display = "block";
   } else {
     noResultsMessage.style.display = "none";
