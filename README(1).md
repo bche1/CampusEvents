@@ -79,7 +79,7 @@ Once the app is running:
 
 ## API Documentation
 
-The backend exposes a REST API. Base URL: `http://localhost:8080/api`
+TThe backend exposes a REST API. Base URL: `https://campusevents-olmp.onrender.com/api`
 
 ```
 | Method | Endpoint | Description |
