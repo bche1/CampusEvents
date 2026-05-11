@@ -6,7 +6,8 @@ var API_BASE_URL = "https://campusevents-olmp.onrender.com/api";
 var currentUser = {
   id: localStorage.getItem("currentUserId"),
   username: localStorage.getItem("currentUsername"),
-  email: localStorage.getItem("currentUserEmail")
+  email: localStorage.getItem("currentUserEmail"),
+  role: localStorage.getItem("currentUserRole")
 };
 
 var myEventIds = [];
@@ -245,10 +246,12 @@ function loginUser() {
         currentUser.id = result.user.id;
         currentUser.username = result.user.username;
         currentUser.email = result.user.email;
+        currentUser.role = result.user.role || "student";
 
         localStorage.setItem("currentUserId", currentUser.id);
         localStorage.setItem("currentUsername", currentUser.username);
         localStorage.setItem("currentUserEmail", currentUser.email);
+        localStorage.setItem("currentUserRole", currentUser.role);
 
         if (statusMessage) {
           statusMessage.textContent = "Login successful. Logged in as " + currentUser.username + ".";
@@ -302,10 +305,12 @@ function logoutUser() {
   currentUser.id = null;
   currentUser.username = null;
   currentUser.email = null;
+  currentUser.role = null;
 
   localStorage.removeItem("currentUserId");
   localStorage.removeItem("currentUsername");
   localStorage.removeItem("currentUserEmail");
+  localStorage.removeItem("currentUserRole");
 
   document.removeEventListener("click", cancelLogoutConfirm);
 
@@ -986,10 +991,6 @@ function renderEvents(events) {
     return;
   }
 
-  if (!eventGrid) {
-    return;
-  }
-
   eventGrid.innerHTML = "";
 
   var eventsToRender = events;
@@ -1003,6 +1004,10 @@ function renderEvents(events) {
 
   for (var i = 0; i < eventsToRender.length; i++) {
     var eventItem = eventsToRender[i];
+
+    if (!eventItem) {
+      continue;
+    }
 
     var card = document.createElement("div");
     card.className = "eventCard";
@@ -1023,6 +1028,15 @@ function renderEvents(events) {
 
     var alreadyGoing = userHasRsvped(eventItem._id);
     var rsvpButtonHtml = "";
+
+    var adminDeleteButtonHtml = "";
+
+    if (userIsAdmin()) {
+      adminDeleteButtonHtml =
+        '<button class="adminDeleteEventBtn" onclick="deleteEventAsAdmin(event, \'' + eventItem._id + '\')">' +
+          'Delete' +
+        '</button>';
+    }
 
     if (alreadyGoing) {
       rsvpButtonHtml =
@@ -1048,7 +1062,10 @@ function renderEvents(events) {
         '<div class="eventMeta">' + dateText + '<br>' + (eventItem.location || "Location TBD") + '</div>' +
         '<div class="eventFooter">' +
           '<span class="categoryBadge ' + badgeClass + '">' + category + '</span>' +
-          rsvpButtonHtml +
+          '<div class="eventActionGroup">' +
+            adminDeleteButtonHtml +
+            rsvpButtonHtml +
+          '</div>' +
         '</div>' +
       '</div>';
 
@@ -1648,5 +1665,81 @@ function submitHostEvent() {
         statusMessage.textContent = error.error || error.message || "Could not create event.";
         statusMessage.className = "error";
       }
+    });
+}
+
+function userIsAdmin() {
+  return currentUser && currentUser.role === "admin";
+}
+
+function showAdminNotice(message, isError) {
+  var notice = document.getElementById("rsvpNotice");
+
+  if (!notice) {
+    console.log(message);
+    return;
+  }
+
+  notice.textContent = message;
+
+  if (isError) {
+    notice.classList.add("error");
+  } else {
+    notice.classList.remove("error");
+  }
+
+  notice.style.display = "block";
+
+  setTimeout(function() {
+    notice.style.display = "none";
+    notice.classList.remove("error");
+  }, 3500);
+}
+
+function deleteEventAsAdmin(clickEvent, eventId) {
+  if (clickEvent) {
+    clickEvent.stopPropagation();
+  }
+
+  if (!userIsAdmin()) {
+    showAdminNotice("Only admins can delete events.", true);
+    return;
+  }
+
+  var confirmed = confirm("Are you sure you want to delete this event?");
+
+  if (!confirmed) {
+    return;
+  }
+
+  fetch(API_BASE_URL + "/events/" + eventId, {
+    method: "DELETE"
+  })
+    .then(function(response) {
+      return response.json().then(function(data) {
+        if (!response.ok) {
+          throw data;
+        }
+
+        return data;
+      });
+    })
+    .then(function(result) {
+      console.log("Event deleted:", result);
+
+      allEvents = allEvents.filter(function(eventItem) {
+        return normalizeId(eventItem._id) !== normalizeId(eventId);
+      });
+
+      myEventIds = myEventIds.filter(function(savedEventId) {
+        return normalizeId(savedEventId) !== normalizeId(eventId);
+      });
+
+      showAdminNotice("Event deleted successfully.", false);
+      filterEvents();
+    })
+    .catch(function(error) {
+      console.log("Could not delete event:", error);
+      showAdminNotice("Could not delete event. The backend may not support deleting events yet.", true);
     });
 }
