@@ -1,5 +1,6 @@
 var API_BASE_URL = "https://campusevents-olmp.onrender.com/api";
 
+
 // Replace this later with a real logged-in user from backend auth.
 
 var currentUser = {
@@ -24,6 +25,30 @@ var browseEventsPerPage = 2; // temp set to to 2
 
 var authMode = "login";
 var logoutConfirmActive = false;
+
+function normalizeId(value) {
+  if (!value) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (value._id) {
+    return String(value._id);
+  }
+
+  return String(value);
+}
+
+function userHasRsvped(eventId) {
+  var cleanEventId = normalizeId(eventId);
+
+  return myEventIds.some(function(savedEventId) {
+    return normalizeId(savedEventId) === cleanEventId;
+  });
+}
 
 function showView(viewName) {
   currentView = viewName;
@@ -138,9 +163,19 @@ function registerUser() {
 function loginUser() {
   var email = document.getElementById("authEmail").value.trim();
   var password = document.getElementById("authPassword").value.trim();
+  var statusMessage = document.getElementById("authStatusMessage");
+
+  if (statusMessage) {
+    statusMessage.textContent = "";
+    statusMessage.className = "";
+  }
 
   if (!email || !password) {
-    alert("Please enter email and password.");
+    if (statusMessage) {
+      statusMessage.textContent = "Login failed: please enter email and password.";
+      statusMessage.className = "error";
+    }
+
     return;
   }
 
@@ -169,19 +204,32 @@ function loginUser() {
         localStorage.setItem("currentUsername", currentUser.username);
         localStorage.setItem("currentUserEmail", currentUser.email);
 
+        if (statusMessage) {
+          statusMessage.textContent = "Login successful. Logged in as " + currentUser.username + ".";
+          statusMessage.className = "success";
+        }
+
         updateAuthStatus();
-        closeAuthModal();
         filterEvents();
         loadMyRsvpsFromBackend();
 
-        alert("Logged in as " + currentUser.username);
+        setTimeout(function() {
+          closeAuthModal();
+        }, 900);
       } else {
-        alert(result.message || "Login failed.");
+        if (statusMessage) {
+          statusMessage.textContent = result.message || "Login failed: incorrect email or password.";
+          statusMessage.className = "error";
+        }
       }
     })
     .catch(function(error) {
       console.log("Login error:", error);
-      alert("Could not log in.");
+
+      if (statusMessage) {
+        statusMessage.textContent = "Login failed: could not connect to the server.";
+        statusMessage.className = "error";
+      }
     });
 }
 
@@ -321,7 +369,13 @@ function rsvp(clickEvent, button, eventIdOverride) {
     })
   })
     .then(function(response) {
-      return response.json();
+      return response.json().then(function(data) {
+        if (!response.ok) {
+          throw data;
+        }
+
+        return data;
+      });
     })
     .then(function(result) {
       console.log("RSVP saved:", result);
@@ -344,10 +398,28 @@ function rsvp(clickEvent, button, eventIdOverride) {
           notice.style.display = "none";
         }, 4000);
       }
+
+      if (currentView === "myEvents") {
+        filterEvents();
+      }
     })
     .catch(function(error) {
       console.log("Could not save RSVP:", error);
-      alert("Could not save RSVP.");
+
+      if (error && error.error === "Already registered") {
+        saveMyEventId(eventId);
+        loadMyRsvpsFromBackend();
+
+        if (button) {
+          button.textContent = "Going";
+          button.className = "rsvpBtn going";
+          button.onclick = null;
+        }
+
+        alert("You already RSVP’d to this event.");
+      } else {
+        alert("Could not save RSVP.");
+      }
     });
 }
 
@@ -360,31 +432,49 @@ function loadMyRsvpsFromBackend() {
 
   fetch(API_BASE_URL + "/rsvp/user/" + currentUser.id)
     .then(function(response) {
+      if (!response.ok) {
+        throw new Error("RSVP route not available yet. Status: " + response.status);
+      }
+
       return response.json();
     })
     .then(function(rsvps) {
       console.log("Loaded my RSVPs:", rsvps);
 
+      if (!Array.isArray(rsvps)) {
+        console.log("RSVP response was not an array:", rsvps);
+        myEventIds = [];
+        filterEvents();
+        return;
+      }
+
       myEventIds = rsvps.map(function(rsvp) {
-        return rsvp.eventId;
+        return normalizeId(rsvp.eventId);
       });
+
+      console.log("My RSVP event IDs:", myEventIds);
 
       filterEvents();
     })
     .catch(function(error) {
       console.log("Could not load user RSVPs:", error);
+
+      myEventIds = [];
+      filterEvents();
     });
 }
 
 function saveMyEventId(eventId) {
-  if (!myEventIds.includes(eventId)) {
-    myEventIds.push(eventId);
+  var cleanEventId = normalizeId(eventId);
+
+  if (!userHasRsvped(cleanEventId)) {
+    myEventIds.push(cleanEventId);
   }
 }
 
 function getMyEvents() {
   return allEvents.filter(function(eventItem) {
-    return myEventIds.includes(eventItem._id);
+    return userHasRsvped(eventItem._id);
   });
 }
 
@@ -558,6 +648,7 @@ window.onload = function() {
 
   updateAuthStatus();
   loadEventsFromBackend();
+
 };
 
 function loadEventsFromBackend() {
@@ -567,8 +658,13 @@ function loadEventsFromBackend() {
     })
     .then(function(events) {
       allEvents = events;
-      renderEvents(allEvents);
+      filterEvents();
       updateHeroStats();
+
+      if (currentUser.id) {
+        loadMyRsvpsFromBackend();
+      }
+
     })
     .catch(function(error) {
       console.log("Could not load events:", error);
@@ -715,6 +811,15 @@ function renderEvents(events) {
     var bannerColor = getBannerColor(category);
     var dateText = formatEventDate(eventItem.date);
 
+    var alreadyGoing = userHasRsvped(eventItem._id);
+    var rsvpButtonHtml = "";
+
+    if (alreadyGoing) {
+      rsvpButtonHtml = '<button class="rsvpBtn going" disabled>Going</button>';
+    } else {
+      rsvpButtonHtml = '<button class="rsvpBtn" onclick="rsvp(event, this)">RSVP</button>';
+    }
+
     card.innerHTML =
       '<div class="eventCardBanner" style="background-color: ' + bannerColor + ';">' +
         '<div class="eventDateChip">' + dateText + '</div>' +
@@ -725,7 +830,7 @@ function renderEvents(events) {
         '<div class="eventMeta">' + dateText + '<br>' + (eventItem.location || "Location TBD") + '</div>' +
         '<div class="eventFooter">' +
           '<span class="categoryBadge ' + badgeClass + '">' + category + '</span>' +
-          '<button class="rsvpBtn" onclick="rsvp(event, this)">RSVP</button>' +
+          rsvpButtonHtml +
         '</div>' +
       '</div>';
 
@@ -870,13 +975,20 @@ function showEventDetails(eventId) {
   }
 
   if (bigRsvpBtn) {
-    bigRsvpBtn.textContent = "RSVP for this event";
-    bigRsvpBtn.className = "bigRsvpBtn";
-    bigRsvpBtn.onclick = function() {
-      rsvp(null, bigRsvpBtn, eventItem._id);
-    };
+    if (userHasRsvped(eventItem._id)) {
+      bigRsvpBtn.textContent = "You’re going";
+      bigRsvpBtn.className = "bigRsvpBtn going";
+      bigRsvpBtn.onclick = null;
+    } else {
+      bigRsvpBtn.textContent = "RSVP for this event";
+      bigRsvpBtn.className = "bigRsvpBtn";
+      bigRsvpBtn.onclick = function() {
+        rsvp(null, bigRsvpBtn, eventItem._id);
+      };
+    }
   }
 }
+
 
 function updateNoResultsMessage(count) {
   var noResultsMessage;
