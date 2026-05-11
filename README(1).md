@@ -47,7 +47,7 @@ Towson University's existing event services are fragmented, non-interactive, and
 
 | Category        | Technology                               |
 |-----------------|------------------------------------------|
-| Languages       | JavaScript, Java                         |
+| Languages       | JavaScript                        |
 | Frameworks      | Node.js, Express.js                      |
 | Database        | MongoDB                                  |
 | Hosting         | Vercel (Frontend)                        |
