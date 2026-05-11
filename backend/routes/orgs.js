@@ -1,14 +1,8 @@
 const router = require('express').Router();
-<<<<<<< Myles-Branch
 const Org = require('../models/Org');
 
 console.log("ORG ROUTE LOADED");
-=======
 const Org    = require('../models/Org');
-
-
-
->>>>>>> main
 // GET single org
 router.get('/:id', async (req, res) => {
   try {
