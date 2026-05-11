@@ -1421,13 +1421,12 @@ function submitHostEvent() {
   var eventData = {
     name: name,
     org: org,
-    date: new Date(date).toISOString(),
+    date: new Date(date + "T12:00:00").toISOString(),
     location: location,
     category: category,
     capacity: capacity ? Number(capacity) : undefined,
     about: about
   };
-
   fetch(API_BASE_URL + "/events", {
     method: "POST",
     headers: {

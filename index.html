@@ -315,10 +315,14 @@
   <div id="hostEventModal" onclick="event.stopPropagation()">
     <button id="hostEventCloseBtn" onclick="closeHostEventForm()">×</button>
 
-    <h2>Host an Event</h2>
-    <p>Create a campus event connected to an organization.</p>
+    <div id="hostEventModalHeader">
+      <div id="hostEventEyebrow">Organization Tools</div>
+      <h2>Host an Event</h2>
+      <p>Create a campus event connected to an organization.</p>
+    </div>
 
-    <div id="hostEventStatusMessage"></div>
+    <div id="hostEventModalBody">
+      <div id="hostEventStatusMessage"></div>
 
     <input type="text" id="hostEventName" placeholder="Event name" />
 
@@ -326,7 +330,7 @@
       <option value="">Select organization</option>
     </select>
 
-    <input type="datetime-local" id="hostEventDate" />
+    <input type="date" id="hostEventDate" />
 
     <input type="text" id="hostEventLocation" placeholder="Location" />
 
@@ -344,6 +348,7 @@
 
     <button id="hostEventSubmitBtn" onclick="submitHostEvent()">Create event</button>
   </div>
+</div>
 </div>
 
   <script type="text/javascript" src="script.js"></script>

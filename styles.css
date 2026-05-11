@@ -1353,10 +1353,76 @@ body.darkMode #authSwitchText {
     flex-direction: column;
   }
 }
+/* Host Event Modal */
+#hostEventOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.68);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: overlayFadeIn 0.18s ease-out;
+}
+
+#hostEventOverlay.hiddenView {
+  display: none;
+}
+
+#hostEventModal {
+  width: 100%;
+  max-width: 520px;
+  background-color: #111111;
+  border-radius: 28px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  position: relative;
+  animation: modalPopIn 0.22s ease-out;
+}
+
+#hostEventModalHeader {
+  background-color: #111111;
+  border-bottom: 5px solid #ffbb00;
+  padding: 26px 28px 22px 28px;
+}
+
+#hostEventEyebrow {
+  color: #ffbb00;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+#hostEventModalHeader h2 {
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  font-size: 28px;
+}
+
+#hostEventModalHeader p {
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#hostEventModalBody {
+  background-color: #ffffff;
+  padding: 24px 28px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
 #hostEventStatusMessage {
-  margin-bottom: 10px;
-  font-size: 14px;
+  min-height: 16px;
+  margin: 0;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
   font-weight: bold;
 }
 
@@ -1368,51 +1434,67 @@ body.darkMode #authSwitchText {
   color: #b42318;
 }
 
-#hostEventOverlay textarea {
-  min-height: 90px;
-  resize: vertical;
-}
-
-#hostEventOverlay input,
-#hostEventOverlay select,
-#hostEventOverlay textarea {
+#hostEventModalBody input,
+#hostEventModalBody select,
+#hostEventModalBody textarea {
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 10px;
+  padding: 12px 14px;
+  border: 1px solid #cdd3e0;
+  border-radius: 999px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-#hostEventOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.55);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#hostEventOverlay.hiddenView {
-  display: none;
-}
-
-#hostEventModal {
-  background-color: #ffffff;
+#hostEventModalBody textarea {
+  min-height: 90px;
+  resize: vertical;
   border-radius: 18px;
-  padding: 28px;
-  width: 420px;
-  max-width: 90%;
-  position: relative;
+}
+
+#hostEventSubmitBtn {
+  background-color: #ffbb00;
+  color: #111111;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+#hostEventSubmitBtn:hover {
+  background-color: #e6a800;
 }
 
 #hostEventCloseBtn {
   position: absolute;
   top: 14px;
-  right: 16px;
-  border: none;
+  right: 18px;
   background: none;
-  font-size: 24px;
+  color: #ffbb00;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
   cursor: pointer;
+  z-index: 2;
+}
+
+#hostEventCloseBtn:hover {
+  color: #e6a800;
+}
+
+body.darkMode #hostEventModalBody {
+  background-color: #16233a;
+}
+
+body.darkMode #hostEventModalBody input,
+body.darkMode #hostEventModalBody select,
+body.darkMode #hostEventModalBody textarea {
+  background-color: #101827;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
 }
