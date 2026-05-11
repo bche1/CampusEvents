@@ -27,6 +27,10 @@ var browseEventsPerPage = 16; // temp set to to 2
 var authMode = "login";
 var logoutConfirmActive = false;
 
+var leaveConfirmButton = null;
+var leaveConfirmEventId = null;
+var leaveConfirmActive = false;
+
 function normalizeId(value) {
   if (!value) {
     return "";
@@ -434,6 +438,8 @@ function rsvp(clickEvent, button, eventIdOverride) {
       var notice = document.getElementById("rsvpNotice");
 
       if (notice) {
+        notice.textContent = "RSVP Successful! Check email for confirmation.";
+        notice.classList.remove("error");
         notice.style.display = "block";
 
         setTimeout(function() {
@@ -504,6 +510,155 @@ function loadMyRsvpsFromBackend() {
       myEventIds = [];
       filterEvents();
     });
+}
+
+function resetLeaveConfirm() {
+  if (leaveConfirmButton) {
+    leaveConfirmButton.textContent = "Going";
+    leaveConfirmButton.classList.remove("confirmLeave");
+    leaveConfirmButton.classList.remove("leaveHover");
+    leaveConfirmButton.title = "Cancel RSVP";
+  }
+
+  leaveConfirmActive = false;
+  leaveConfirmButton = null;
+  leaveConfirmEventId = null;
+
+  document.removeEventListener("click", cancelLeaveConfirm);
+}
+
+function cancelLeaveConfirm(event) {
+  if (leaveConfirmButton && leaveConfirmButton.contains(event.target)) {
+    return;
+  }
+
+  resetLeaveConfirm();
+}
+
+function removeMyEventId(eventId) {
+  var cleanEventId = normalizeId(eventId);
+
+  myEventIds = myEventIds.filter(function(savedEventId) {
+    return normalizeId(savedEventId) !== cleanEventId;
+  });
+}
+
+function handleGoingHover(button) {
+  if (!button.classList.contains("confirmLeave")) {
+    button.textContent = "Cancel?";
+    button.classList.add("leaveHover");
+    button.title = "Cancel RSVP";
+  }
+}
+
+function handleGoingMouseOut(button) {
+  if (!button.classList.contains("confirmLeave")) {
+    button.textContent = "Going";
+    button.classList.remove("leaveHover");
+    button.title = "Cancel RSVP";
+  }
+}
+
+function leaveRsvp(clickEvent, button, eventIdOverride) {
+  if (clickEvent) {
+    clickEvent.stopPropagation();
+  }
+
+  var eventId = eventIdOverride;
+
+  if (!eventId && button) {
+    var eventCard = button.closest(".eventCard");
+
+    if (eventCard) {
+      eventId = eventCard.getAttribute("data-event-id");
+    }
+  }
+
+  if (!eventId || !currentUser.id) {
+    return;
+  }
+
+  if (
+    leaveConfirmActive &&
+    leaveConfirmButton === button &&
+    normalizeId(leaveConfirmEventId) === normalizeId(eventId)
+  ) {
+    fetch(API_BASE_URL + "/rsvp", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        eventId: eventId,
+        userId: currentUser.id
+      })
+    })
+      .then(function(response) {
+        return response.json().then(function(data) {
+          if (!response.ok) {
+            throw data;
+          }
+
+          return data;
+        });
+      })
+      .then(function(result) {
+        console.log("RSVP removed:", result);
+
+        removeMyEventId(eventId);
+        resetLeaveConfirm();
+        loadMyRsvpsFromBackend();
+        filterEvents();
+
+        var notice = document.getElementById("rsvpNotice");
+
+        if (notice) {
+          notice.textContent = "Could not cancel your RSVP. Please try again.";
+          notice.classList.add("error");
+          notice.style.display = "block";
+
+          setTimeout(function() {
+            notice.style.display = "none";
+            notice.classList.remove("error");
+          }, 3500);
+        }
+      })
+      .catch(function(error) {
+        console.log("Could not remove RSVP:", error);
+
+        resetLeaveConfirm();
+
+        var notice = document.getElementById("rsvpNotice");
+
+        if (notice) {
+          notice.textContent = "Could not cancel your RSVP. Please try again.";
+          notice.style.display = "block";
+
+          setTimeout(function() {
+            notice.style.display = "none";
+          }, 3500);
+        }
+      });
+
+    return;
+  }
+
+  if (leaveConfirmButton && leaveConfirmButton !== button) {
+    resetLeaveConfirm();
+  }
+
+  leaveConfirmActive = true;
+  leaveConfirmButton = button;
+  leaveConfirmEventId = eventId;
+
+  button.textContent = "Are you sure?";
+  button.classList.add("confirmLeave");
+  button.classList.remove("leaveHover");
+  button.title = "Click again to cancel your RSVP";
+
+  setTimeout(function() {
+    document.addEventListener("click", cancelLeaveConfirm);
+  }, 0);
 }
 
 function saveMyEventId(eventId) {
@@ -870,7 +1025,15 @@ function renderEvents(events) {
     var rsvpButtonHtml = "";
 
     if (alreadyGoing) {
-      rsvpButtonHtml = '<button class="rsvpBtn going" disabled>Going</button>';
+      rsvpButtonHtml =
+        '<button ' +
+          'class="rsvpBtn going" ' +
+          'title="Cancel RSVP" ' +
+          'onmouseenter="handleGoingHover(this)" ' +
+          'onmouseleave="handleGoingMouseOut(this)" ' +
+          'onclick="leaveRsvp(event, this, \'' + eventItem._id + '\')">' +
+          'Going' +
+        '</button>';
     } else {
       rsvpButtonHtml = '<button class="rsvpBtn" onclick="rsvp(event, this)">RSVP</button>';
     }
@@ -1033,10 +1196,22 @@ function showEventDetails(eventId) {
     if (userHasRsvped(eventItem._id)) {
       bigRsvpBtn.textContent = "You’re going";
       bigRsvpBtn.className = "bigRsvpBtn going";
-      bigRsvpBtn.onclick = null;
+      bigRsvpBtn.title = "Cancel RSVP";
+      bigRsvpBtn.onmouseenter = function() {
+        handleGoingHover(bigRsvpBtn);
+      };
+      bigRsvpBtn.onmouseleave = function() {
+        handleGoingMouseOut(bigRsvpBtn);
+      };
+      bigRsvpBtn.onclick = function(event) {
+        leaveRsvp(event, bigRsvpBtn, eventItem._id);
+      };
     } else {
       bigRsvpBtn.textContent = "RSVP for this event";
       bigRsvpBtn.className = "bigRsvpBtn";
+      bigRsvpBtn.title = "";
+      bigRsvpBtn.onmouseenter = null;
+      bigRsvpBtn.onmouseleave = null;
       bigRsvpBtn.onclick = function() {
         rsvp(null, bigRsvpBtn, eventItem._id);
       };

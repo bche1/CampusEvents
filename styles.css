@@ -1498,3 +1498,49 @@ body.darkMode #hostEventModalBody textarea {
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.18);
 }
+
+.rsvpBtn.going {
+  background-color: #27500a;
+}
+
+.rsvpBtn.going.leaveHover {
+  background-color: #b42318;
+}
+
+.rsvpBtn.going.confirmLeave {
+  background-color: #b42318;
+}
+
+.rsvpBtn.going.confirmLeave:hover,
+.rsvpBtn.going.leaveHover:hover {
+  background-color: #991b1b;
+}
+
+.bigRsvpBtn.going {
+  background-color: #27500a;
+}
+
+.bigRsvpBtn.going.leaveHover {
+  background-color: #b42318;
+}
+
+.bigRsvpBtn.going.confirmLeave {
+  background-color: #b42318;
+}
+
+.bigRsvpBtn.going.leaveHover:hover,
+.bigRsvpBtn.going.confirmLeave:hover {
+  background-color: #991b1b;
+}
+
+#rsvpNotice.error {
+  background-color: #fde8e8;
+  border-color: #b42318;
+  color: #b42318;
+}
+
+body.darkMode #rsvpNotice.error {
+  background-color: #3a1620;
+  border-color: #ff8a8a;
+  color: #ffb3b3;
+}
