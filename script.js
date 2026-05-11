@@ -1,45 +1,515 @@
-// Called when any RSVP button is clicked
-function rsvp(button) {
+var API_BASE_URL = "https://campusevents-olmp.onrender.com/api";
+
+// Replace this later with a real logged-in user from backend auth.
+
+var currentUser = {
+  id: null,
+  name: "Demo Student",
+  role: "student"
+};
+
+var allEvents = [];
+
+var activeFilters = {
+  today: false,
+  free: false,
+  virtual: false
+};
+
+var currentView = "myEvents";
+
+function showView(viewName) {
+  currentView = viewName;
+
+  var myEventsView = document.getElementById("myEventsView");
+  var browseView = document.getElementById("browseView");
+
+  var myEventsNav = document.getElementById("myEventsNav");
+  var browseNav = document.getElementById("browseNav");
+
+  if (viewName === "browse") {
+    myEventsView.classList.add("hiddenView");
+    browseView.classList.remove("hiddenView");
+
+    myEventsNav.classList.remove("active");
+    browseNav.classList.add("active");
+  } else {
+    myEventsView.classList.remove("hiddenView");
+    browseView.classList.add("hiddenView");
+
+    myEventsNav.classList.add("active");
+    browseNav.classList.remove("active");
+  }
+
+  filterEvents();
+}
+
+function rsvp(clickEvent, button, eventIdOverride) {
+  if (clickEvent) {
+    clickEvent.stopPropagation();
+  }
+
+  var eventId = eventIdOverride;
+
+  if (!eventId && button) {
+    var eventCard = button.closest(".eventCard");
+
+    if (eventCard) {
+      eventId = eventCard.getAttribute("data-event-id");
+    }
+  }
+
+  if (!eventId) {
+    console.log("No event ID found for RSVP.");
+    return;
+  }
+
   button.textContent = "Going";
   button.className = "rsvpBtn going";
   button.onclick = null;
 
   var notice = document.getElementById("rsvpNotice");
-  notice.style.display = "block";
 
-  setTimeout(function() {
-    notice.style.display = "none";
-  }, 4000);
+  if (notice) {
+    notice.style.display = "block";
+
+    setTimeout(function() {
+      notice.style.display = "none";
+    }, 4000);
+  }
+
+  if (!currentUser.id) {
+    console.log("RSVP UI updated, but no real user ID is set yet.");
+    return;
+  }
+
+  fetch(API_BASE_URL + "/rsvp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      eventId: eventId,
+      userId: currentUser.id
+    })
+  })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(result) {
+      console.log("RSVP saved:", result);
+    })
+    .catch(function(error) {
+      console.log("Could not save RSVP:", error);
+    });
 }
 
-// Removes active class from all pills, adds it to clicked pill
 function setPill(clickedPill, filter) {
-  var pills = document.getElementsByClassName("filterPill");
-  for (var i = 0; i < pills.length; i++) {
-    pills[i].className = "filterPill";
-  }
-  clickedPill.className = "filterPill active";
+  activeFilters[filter] = !activeFilters[filter];
+  clickedPill.classList.toggle("active");
   filterEvents();
 }
 
-// Hides cards that don't match the search text or selected category
+// Hides cards that do not match search, category, and pill filter
 function filterEvents() {
-  var searchVal = document.getElementById("searchInput").value.toLowerCase();
-  var categoryVal = document.getElementById("categorySelect").value;
-  var cards = document.getElementsByClassName("eventCard");
+  var searchInput = document.getElementById("searchInput");
+  var categorySelect = document.getElementById("categorySelect");
 
-  for (var i = 0; i < cards.length; i++) {
-    var card = cards[i];
-    var name = card.getAttribute("data-name").toLowerCase();
-    var cat = card.getAttribute("data-category");
+  if (!searchInput || !categorySelect) {
+    return;
+  }
 
-    var matchSearch = name.indexOf(searchVal) !== -1;
-    var matchCategory = categoryVal === "all" || cat === categoryVal;
+  var searchVal = searchInput.value.toLowerCase().trim();
+  var categoryVal = categorySelect.value;
 
-    if (matchSearch && matchCategory) {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
+  var filteredEvents = allEvents.filter(function(eventItem) {
+    var searchableText = (
+      (eventItem.name || "") + " " +
+      (eventItem.org || "") + " " +
+      (eventItem.location || "") + " " +
+      (eventItem.category || "") + " " +
+      (eventItem.about || "")
+    ).toLowerCase();
+
+    var matchSearch = searchableText.indexOf(searchVal) !== -1;
+    var matchCategory = categoryVal === "all" || eventItem.category === categoryVal;
+
+    var matchPill = true;
+
+    if (activeFilters.today && !isToday(eventItem.date)) {
+      matchPill = false;
     }
+
+    if (activeFilters.virtual && !isVirtualEvent(eventItem)) {
+      matchPill = false;
+    }
+
+    return matchSearch && matchCategory && matchPill;
+  });
+
+  renderEvents(filteredEvents);
+}
+
+function isToday(dateValue) {
+  var eventDate = new Date(dateValue);
+  var today = new Date();
+
+  return (
+    eventDate.getFullYear() === today.getFullYear() &&
+    eventDate.getMonth() === today.getMonth() &&
+    eventDate.getDate() === today.getDate()
+  );
+}
+
+function isVirtualEvent(eventItem) {
+  var location = (eventItem.location || "").toLowerCase();
+
+  return (
+    location.indexOf("online") !== -1 ||
+    location.indexOf("virtual") !== -1 ||
+    location.indexOf("zoom") !== -1
+  );
+}
+
+function formatEventDate(dateValue) {
+  var date = new Date(dateValue);
+
+  if (isNaN(date.getTime())) {
+    return "Date TBD";
+  }
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function formatEventTime(dateValue) {
+  var date = new Date(dateValue);
+
+  if (isNaN(date.getTime())) {
+    return "Time TBD";
+  }
+
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function getBadgeClass(category) {
+  if (category === "academic") return "badgeBlue";
+  if (category === "social") return "badgeGreen";
+  if (category === "career") return "badgeAmber";
+  if (category === "workshop") return "badgeRed";
+
+  return "badgeBlue";
+}
+
+function getBannerColor(category) {
+  if (category === "academic") return "#ddeaff";
+  if (category === "social") return "#d4edda";
+  if (category === "career") return "#fff3cd";
+  if (category === "workshop") return "#fde8e8";
+
+  return "#ddeaff";
+}
+
+// Rotates the campus hero images
+var currentSlide = 0;
+
+function rotateHeroImages() {
+  var slides = document.getElementsByClassName("heroSlide");
+
+  if (slides.length === 0) {
+    return;
+  }
+
+  slides[currentSlide].classList.remove("active");
+
+  currentSlide++;
+
+  if (currentSlide >= slides.length) {
+    currentSlide = 0;
+  }
+
+  slides[currentSlide].classList.add("active");
+}
+
+setInterval(rotateHeroImages, 8000);
+
+function toggleDarkMode() {
+  var toggle = document.getElementById("darkModeToggle");
+
+  if (toggle.checked) {
+    document.body.classList.add("darkMode");
+    localStorage.setItem("darkMode", "on");
+  } else {
+    document.body.classList.remove("darkMode");
+    localStorage.setItem("darkMode", "off");
+  }
+}
+
+window.onload = function() {
+  var savedMode = localStorage.getItem("darkMode");
+  var toggle = document.getElementById("darkModeToggle");
+
+  if (savedMode === "on") {
+    document.body.classList.add("darkMode");
+
+    if (toggle) {
+      toggle.checked = true;
+    }
+  }
+
+  loadEventsFromBackend();
+};
+
+function loadEventsFromBackend() {
+  fetch(API_BASE_URL + "/events")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(events) {
+      allEvents = events;
+      renderEvents(allEvents);
+      updateHeroStats();
+    })
+    .catch(function(error) {
+      console.log("Could not load events:", error);
+
+      var eventGrid = document.getElementById("eventGrid");
+
+      if (eventGrid) {
+        eventGrid.innerHTML = "<p>Could not load events. Please try again later.</p>";
+      }
+    });
+}
+
+function loadOrgsFromBackend() {
+  fetch(API_BASE_URL + "/orgs")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(orgs) {
+      backendOrgs = orgs;
+      console.log("Loaded orgs from backend:", backendOrgs);
+    })
+    .catch(function(error) {
+      console.log("Could not load orgs:", error);
+    });
+}
+
+function loadRsvpsForEvent(eventId) {
+  fetch(API_BASE_URL + "/rsvp/" + eventId)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(rsvps) {
+      backendRsvps = rsvps;
+      console.log("Loaded RSVPs for event:", eventId, rsvps);
+    })
+    .catch(function(error) {
+      console.log("Could not load RSVPs:", error);
+    });
+}
+
+function createRsvpInBackend(eventId) {
+  if (!currentUser.id) {
+    console.log("Cannot RSVP yet: no real currentUser.id is set.");
+    return;
+  }
+
+  var rsvpData = {
+    eventId: eventId,
+    userId: currentUser.id
+  };
+
+  fetch(API_BASE_URL + "/rsvp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(rsvpData)
+  })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(savedRsvp) {
+      console.log("RSVP saved:", savedRsvp);
+    })
+    .catch(function(error) {
+      console.log("Could not save RSVP:", error);
+    });
+}
+
+function deleteRsvpInBackend(eventId) {
+  if (!currentUser.id) {
+    console.log("Cannot delete RSVP yet: no real currentUser.id is set.");
+    return;
+  }
+
+  var rsvpData = {
+    eventId: eventId,
+    userId: currentUser.id
+  };
+
+  fetch(API_BASE_URL + "/rsvp", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(rsvpData)
+  })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(result) {
+      console.log("RSVP removed:", result);
+    })
+    .catch(function(error) {
+      console.log("Could not delete RSVP:", error);
+    });
+}
+
+function renderEvents(events) {
+  var eventGrid;
+
+  if (currentView === "browse") {
+    eventGrid = document.getElementById("browseEventGrid");
+  } else {
+    eventGrid = document.getElementById("eventGrid");
+  }
+
+  if (!eventGrid) {
+    return;
+  }
+
+  if (!eventGrid) {
+    return;
+  }
+
+  eventGrid.innerHTML = "";
+
+  for (var i = 0; i < events.length; i++) {
+    var eventItem = events[i];
+
+    var card = document.createElement("div");
+    card.className = "eventCard";
+
+    card.setAttribute("data-event-id", eventItem._id);
+    card.setAttribute("data-category", eventItem.category || "");
+    card.setAttribute("data-name", eventItem.name || "");
+
+    card.onclick = function() {
+      var eventId = this.getAttribute("data-event-id");
+      showEventDetails(eventId);
+    };
+
+    var category = eventItem.category || "academic";
+    var badgeClass = getBadgeClass(category);
+    var bannerColor = getBannerColor(category);
+    var dateText = formatEventDate(eventItem.date);
+
+    card.innerHTML =
+      '<div class="eventCardBanner" style="background-color: ' + bannerColor + ';">' +
+        '<div class="eventDateChip">' + dateText + '</div>' +
+      '</div>' +
+      '<div class="eventCardBody">' +
+        '<div class="eventOrg">' + (eventItem.org || "Campus Organization") + '</div>' +
+        '<div class="eventName">' + (eventItem.name || "Untitled Event") + '</div>' +
+        '<div class="eventMeta">' + dateText + '<br>' + (eventItem.location || "Location TBD") + '</div>' +
+        '<div class="eventFooter">' +
+          '<span class="categoryBadge ' + badgeClass + '">' + category + '</span>' +
+          '<button class="rsvpBtn" onclick="rsvp(event, this)">RSVP</button>' +
+        '</div>' +
+      '</div>';
+
+    eventGrid.appendChild(card);
+  }
+
+  updateNoResultsMessage(events.length);
+
+  if (events.length > 0) {
+    showEventDetails(events[0]._id);
+  }
+}
+
+function showEventDetails(eventId) {
+  var eventItem = allEvents.find(function(item) {
+    return item._id === eventId;
+  });
+
+  if (!eventItem) {
+    return;
+  }
+
+  var detailEyebrow = document.querySelector(".detailEyebrow");
+  var detailTitle = document.querySelector(".detailTitle");
+  var detailOrg = document.querySelector(".detailOrg");
+  var detailInfoVals = document.querySelectorAll(".detailInfoVal");
+  var detailAboutText = document.querySelector(".detailAboutText");
+  var bigRsvpBtn = document.querySelector(".bigRsvpBtn");
+
+  var dateText = formatEventDate(eventItem.date);
+
+  if (detailEyebrow) {
+    detailEyebrow.textContent = (eventItem.category || "event") + " · Campus Event";
+  }
+
+  if (detailTitle) {
+    detailTitle.textContent = eventItem.name || "Untitled Event";
+  }
+
+  if (detailOrg) {
+    detailOrg.textContent = "Hosted by " + (eventItem.org || "Campus Organization");
+  }
+
+  if (detailInfoVals.length >= 4) {
+    detailInfoVals[0].textContent = dateText;
+    detailInfoVals[1].textContent = eventItem.location || "Location TBD";
+    detailInfoVals[2].textContent = eventItem.org || "Campus Organization";
+    detailInfoVals[3].textContent = (eventItem.capacity || "No") + " total";
+  }
+
+  if (detailAboutText) {
+    detailAboutText.textContent = eventItem.about || "No description has been added for this event yet.";
+  }
+
+  if (bigRsvpBtn) {
+    bigRsvpBtn.textContent = "RSVP for this event";
+    bigRsvpBtn.className = "bigRsvpBtn";
+    bigRsvpBtn.onclick = function() {
+      rsvp(null, bigRsvpBtn, eventItem._id);
+    };
+  }
+}
+
+function updateNoResultsMessage(count) {
+  var noResultsMessage;
+
+  if (currentView === "browse") {
+    noResultsMessage = document.getElementById("browseNoResultsMessage");
+  } else {
+    noResultsMessage = document.getElementById("noResultsMessage");
+  }
+
+  if (!noResultsMessage) {
+    return;
+  }
+
+  if (count === 0) {
+    noResultsMessage.style.display = "block";
+  } else {
+    noResultsMessage.style.display = "none";
+  }
+}
+
+function updateHeroStats() {
+  var statNums = document.getElementsByClassName("statNum");
+
+  if (statNums.length >= 1) {
+    statNums[0].textContent = allEvents.length;
   }
 }
