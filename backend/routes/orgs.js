@@ -1,8 +1,7 @@
 const router = require('express').Router();
 const Org = require('../models/Org');
 
-console.log("ORG ROUTE LOADED");
-const Org    = require('../models/Org');
+
 // GET single org
 router.get('/:id', async (req, res) => {
   try {
