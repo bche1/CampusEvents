@@ -1,6 +1,5 @@
 const router = require('express').Router();
-const Org    = require('../models/Org');
-
+const Org = require('../models/Org');
 
 
 // GET single org
