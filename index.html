@@ -18,9 +18,12 @@
     </ul>
     <div id="navRight">
       <div id="navAuthGroup">
-        <button class="navAuthBtn" onclick="openAuthModal('login')">Login</button>
-        <button class="navAuthBtn" onclick="openAuthModal('register')">Register</button>
+        <button id="loginNavBtn" class="navAuthBtn" onclick="openAuthModal('login')">Login</button>
+        <button id="registerNavBtn" class="navAuthBtn" onclick="openAuthModal('register')">Register</button>
+
         <div id="navUserStatus">Not logged in</div>
+
+        <button id="logoutNavBtn" class="navAuthBtn hiddenView" onclick="logoutUser()">Logout</button>
       </div>
 
       <div id="navUtilityGroup">
@@ -267,6 +270,7 @@
         <input type="password" id="authPassword" placeholder="Password" />
 
         <button id="authSubmitBtn" onclick="submitAuthForm()">Login</button>
+        <p id="authStatusMessage"></p>
 
         <div id="authSwitchText">
           Need an account?

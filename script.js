@@ -22,6 +22,7 @@ var browseCurrentPage = 1;
 var browseEventsPerPage = 2; // temp set to to 2
 
 var authMode = "login";
+var logoutConfirmActive = false;
 
 function showView(viewName) {
   currentView = viewName;
@@ -82,12 +83,21 @@ function restartViewAnimation(viewElement) {
 }
 
 function registerUser() {
-  var username = document.getElementById("authUsername").value.trim();
-  var email = document.getElementById("authEmail").value.trim();
-  var password = document.getElementById("authPassword").value.trim();
+  var usernameInput = document.getElementById("authUsername");
+  var emailInput = document.getElementById("authEmail");
+  var passwordInput = document.getElementById("authPassword");
+  var statusMessage = document.getElementById("authStatusMessage");
+
+  var username = usernameInput.value.trim();
+  var email = emailInput.value.trim();
+  var password = passwordInput.value.trim();
+
+  statusMessage.textContent = "";
+  statusMessage.className = "";
 
   if (!username || !email || !password) {
-    alert("Please enter username, email, and password.");
+    statusMessage.textContent = "Registration failed: please enter username, email, and password.";
+    statusMessage.className = "error";
     return;
   }
 
@@ -109,14 +119,18 @@ function registerUser() {
       console.log("Register result:", result);
 
       if (result.user) {
-        alert("Account created. You can now log in.");
+        statusMessage.textContent = "Account created. You can now log in.";
+        statusMessage.className = "success";
       } else {
-        alert(result.message || "Could not create account.");
+        statusMessage.textContent = result.message || "Registration failed: could not create account.";
+        statusMessage.className = "error";
       }
     })
     .catch(function(error) {
       console.log("Register error:", error);
-      alert("Could not register account.");
+
+      statusMessage.textContent = "Registration failed: could not connect to the server.";
+      statusMessage.className = "error";
     });
 }
 
@@ -168,6 +182,25 @@ function loginUser() {
 }
 
 function logoutUser() {
+  var logoutBtn = document.getElementById("logoutNavBtn");
+
+  if (!logoutConfirmActive) {
+    logoutConfirmActive = true;
+
+    if (logoutBtn) {
+      logoutBtn.textContent = "You sure?";
+      logoutBtn.classList.add("confirmingLogout");
+    }
+
+    setTimeout(function() {
+      document.addEventListener("click", cancelLogoutConfirm);
+    }, 0);
+
+    return;
+  }
+
+  logoutConfirmActive = false;
+
   currentUser.id = null;
   currentUser.username = null;
   currentUser.email = null;
@@ -176,11 +209,33 @@ function logoutUser() {
   localStorage.removeItem("currentUsername");
   localStorage.removeItem("currentUserEmail");
 
+  document.removeEventListener("click", cancelLogoutConfirm);
+
   updateAuthStatus();
+}
+
+function cancelLogoutConfirm(event) {
+  var logoutBtn = document.getElementById("logoutNavBtn");
+
+  if (logoutBtn && logoutBtn.contains(event.target)) {
+    return;
+  }
+
+  logoutConfirmActive = false;
+
+  if (logoutBtn) {
+    logoutBtn.textContent = "Logout";
+    logoutBtn.classList.remove("confirmingLogout");
+  }
+
+  document.removeEventListener("click", cancelLogoutConfirm);
 }
 
 function updateAuthStatus() {
   var navUserStatus = document.getElementById("navUserStatus");
+  var loginNavBtn = document.getElementById("loginNavBtn");
+  var registerNavBtn = document.getElementById("registerNavBtn");
+  var logoutNavBtn = document.getElementById("logoutNavBtn");
 
   if (!navUserStatus) {
     return;
@@ -188,8 +243,38 @@ function updateAuthStatus() {
 
   if (currentUser.id) {
     navUserStatus.textContent = currentUser.username;
+
+    if (loginNavBtn) {
+      loginNavBtn.classList.add("hiddenView");
+    }
+
+    if (registerNavBtn) {
+      registerNavBtn.classList.add("hiddenView");
+    }
+
+    if (logoutNavBtn) {
+      logoutNavBtn.classList.remove("hiddenView");
+    }
+
+    if (logoutNavBtn) {
+      logoutNavBtn.classList.remove("hiddenView");
+      logoutNavBtn.textContent = "Logout";
+      logoutNavBtn.classList.remove("confirmingLogout");
+    }
   } else {
     navUserStatus.textContent = "Not logged in";
+
+    if (loginNavBtn) {
+      loginNavBtn.classList.remove("hiddenView");
+    }
+
+    if (registerNavBtn) {
+      registerNavBtn.classList.remove("hiddenView");
+    }
+
+    if (logoutNavBtn) {
+      logoutNavBtn.classList.add("hiddenView");
+    }
   }
 }
 
@@ -213,22 +298,9 @@ function rsvp(clickEvent, button, eventIdOverride) {
     return;
   }
 
-  button.textContent = "Going";
-  button.className = "rsvpBtn going";
-  button.onclick = null;
-
-  var notice = document.getElementById("rsvpNotice");
-
-  if (notice) {
-    notice.style.display = "block";
-
-    setTimeout(function() {
-      notice.style.display = "none";
-    }, 4000);
-  }
-
   if (!currentUser.id) {
-    console.log("RSVP UI updated, but no real user ID is set yet.");
+    alert("Please log in before RSVPing.");
+    openAuthModal("login");
     return;
   }
 
@@ -247,9 +319,26 @@ function rsvp(clickEvent, button, eventIdOverride) {
     })
     .then(function(result) {
       console.log("RSVP saved:", result);
+
+      if (button) {
+        button.textContent = "Going";
+        button.className = "rsvpBtn going";
+        button.onclick = null;
+      }
+
+      var notice = document.getElementById("rsvpNotice");
+
+      if (notice) {
+        notice.style.display = "block";
+
+        setTimeout(function() {
+          notice.style.display = "none";
+        }, 4000);
+      }
     })
     .catch(function(error) {
       console.log("Could not save RSVP:", error);
+      alert("Could not save RSVP.");
     });
 }
 

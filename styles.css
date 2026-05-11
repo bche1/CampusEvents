@@ -1025,6 +1025,23 @@ body.darkMode .pageBtn.active {
   position: relative;
 }
 
+#authStatusMessage {
+  min-height: 16px;
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-weight: bold;
+}
+
+#authStatusMessage.success {
+  color: #27500a;
+}
+
+#authStatusMessage.error {
+  color: #b42318;
+}
+
 #authCloseBtn {
   position: absolute;
   top: 14px;
